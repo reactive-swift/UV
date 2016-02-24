@@ -46,7 +46,7 @@ public class Loop {
             } catch let e as Error {
                 print(e.description)
             } catch {
-                print("Unknown error happened while destroying the loop")
+                print("Unknown error occured while destroying the loop")
             }
         }
     }

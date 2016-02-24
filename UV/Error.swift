@@ -16,6 +16,7 @@
 
 import CUV
 
+//TODO: make enum
 public struct Error : ErrorType {
     public let code:Int32
     
@@ -30,6 +31,15 @@ public extension Error {
         if result < 0 {
             throw Error(code: result)
         }
+    }
+    
+    public static func handle<Value>(@noescape fun:(inout code:Int32)->Value) throws -> Value {
+        var code:Int32 = 0
+        let result = fun(code: &code)
+        if code < 0 {
+            throw Error(code: code)
+        }
+        return result
     }
 }
 
