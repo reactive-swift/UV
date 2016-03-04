@@ -30,6 +30,29 @@ class UVTests: XCTestCase {
         super.tearDown()
     }
     
+    func testTimer() {
+        var counter = 0
+        
+        let loop = try! Loop()
+        let timer = try! Timer(loop: loop) { timer in
+            counter += 1
+            print("timer:", counter)
+            if counter == 10 {
+                try! timer.stop()
+                try! timer.start(0, repeatTimeout: 100)
+            }
+            if counter > 20 {
+                timer.close()
+            }
+        }
+        
+        try! timer.start(0, repeatTimeout: 50)
+        
+        try! loop.run()
+        
+        print(timer.repeatTimeout)
+    }
+    
     func testExample() {
         let loop = try? Loop()
         
