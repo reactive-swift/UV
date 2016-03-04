@@ -55,7 +55,6 @@ public class Timer : Handle<uv_timer_p> {
         try doWithHandle { handle in
             let repeatTimeout:UInt64 = repeatTimeout.getOrElse(0)
             try Error.handle {
-                //TODO: solve callback problem
                 uv_timer_start(handle, timer_cb, timeout, repeatTimeout)
             }
         }
