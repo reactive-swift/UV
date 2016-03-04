@@ -90,3 +90,20 @@ class LoopTests: XCTestCase {
         //TODO: add source, walk again, test for 1
     }
 }
+
+#if os(Linux)
+extension LoopTests : XCTestCaseProvider {
+	var allTests : [(String, () throws -> Void)] {
+		return [
+			("testCreateDestroy", testCreateDestroy),
+			("testDefaultLoop", testDefaultLoop),
+			("testAlive", testAlive),
+			("testStop", testStop),
+			("testBackendFd", testBackendFd),
+			("testBackendTimeout", testBackendTimeout),
+			("testTime", testTime),
+			("testWalk", testWalk),
+		]
+	}
+}
+#endif
