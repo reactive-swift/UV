@@ -15,6 +15,7 @@
 //===----------------------------------------------------------------------===//
 
 import CUV
+import Boilerplate
 
 public typealias uv_loop_p = UnsafeMutablePointer<uv_loop_t>
 
@@ -114,7 +115,11 @@ public class Loop {
     
     public func walk(f:LoopWalkCallback) {
         let container = AnyContainer(f)
-        let unsafe = UnsafeMutablePointer<Void>(Unmanaged.passRetained(container).toOpaque())
+        let arg = Unmanaged.passRetained(container)
+        defer {
+            arg.release()
+        }
+        let unsafe = UnsafeMutablePointer<Void>(arg.toOpaque())
         uv_walk(loop, loop_walker, unsafe)
     }
 }
@@ -122,7 +127,7 @@ public class Loop {
 public typealias LoopWalkCallback = (uv_handle_p)->Void
 
 private func loop_walker(handle:uv_handle_p, arg:UnsafeMutablePointer<Void>) {
-    let container = Unmanaged<AnyContainer<LoopWalkCallback>>.fromOpaque(COpaquePointer(arg)).takeRetainedValue()
+    let container = Unmanaged<AnyContainer<LoopWalkCallback>>.fromOpaque(COpaquePointer(arg)).takeUnretainedValue()
     let callback = container.content
     callback(handle)
 }
