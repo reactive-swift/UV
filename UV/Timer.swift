@@ -16,17 +16,6 @@
 
 import CUV
 
-extension Optional {
-    func getOrElse(@autoclosure f:()->Wrapped) -> Wrapped {
-        switch self {
-        case .Some(let value):
-            return value
-        case .None:
-            return f()
-        }
-    }
-}
-
 public typealias uv_timer_p = UnsafeMutablePointer<uv_timer_t>
 
 public typealias TimerCallback = (Timer) -> Void
@@ -53,7 +42,7 @@ public class Timer : Handle<uv_timer_p> {
     //uv_timer_start
     public func start(timeout:UInt64, repeatTimeout:UInt64? = nil) throws {
         try doWithHandle { handle in
-            let repeatTimeout:UInt64 = repeatTimeout.getOrElse(0)
+            let repeatTimeout:UInt64 = repeatTimeout ?? 0
             try Error.handle {
                 uv_timer_start(handle, timer_cb, timeout, repeatTimeout)
             }
