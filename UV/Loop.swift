@@ -115,20 +115,23 @@ public class Loop {
     
     public func walk(f:LoopWalkCallback) {
         let container = AnyContainer(f)
-        let arg = Unmanaged.passRetained(container)
-        defer {
-            arg.release()
+        let arg = UnsafeMutablePointer<Void>(Unmanaged.passUnretained(container).toOpaque())
+        uv_walk(loop, loop_walker, arg)
+    }
+    
+    public var handles:Array<HandleType> {
+        get {
+            return Array(enumerator: walk)
         }
-        let unsafe = UnsafeMutablePointer<Void>(arg.toOpaque())
-        uv_walk(loop, loop_walker, unsafe)
     }
 }
 
-public typealias LoopWalkCallback = (uv_handle_p)->Void
+public typealias LoopWalkCallback = (HandleType)->Void
 
 private func loop_walker(handle:uv_handle_p, arg:UnsafeMutablePointer<Void>) {
     let container = Unmanaged<AnyContainer<LoopWalkCallback>>.fromOpaque(COpaquePointer(arg)).takeUnretainedValue()
     let callback = container.content
+    let handle:Handle<uv_handle_p> = Handle.fromHandle(handle)
     callback(handle)
 }
 

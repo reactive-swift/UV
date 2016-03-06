@@ -135,8 +135,34 @@ private class RecvBufferSizeProperty : BufferPropertyType {
     }
 }
 
-public protocol HandleType {
+public protocol HandleType : AnyObject {
     var baseHandle:uv_handle_p {get}
+    
+    var loop:Loop? {get}
+    var active:Bool {get}
+    var closing:Bool {get}
+    
+    func close()
+    func ref() throws
+    func unref() throws
+    
+    var referenced:Bool {get}
+    
+    //present, because properties can not throw. So both ways
+    func getSendBufferSize() throws -> Int32
+    func setSendBufferSize(size:Int32) throws
+    
+    var sendBufferSize:Int32? {get set}
+    
+    //present, because properties can not throw. So both ways
+    func getRecvBufferSize() throws -> Int32
+    func setRecvBufferSize(size:Int32) throws
+    
+    var recvBufferSize:Int32? {get set}
+    
+    //present, because properties can not throw. So both ways
+    func getFileno() throws -> uv_os_fd_t
+    var fileno:uv_os_fd_t? {get}
 }
 
 public class HandleBase {
@@ -151,7 +177,7 @@ public class HandleBase {
     }
 }
 
-public class Handle<Type : uv_handle_type> : HandleBase {
+public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
     public var handle:Type
     
     override func getBaseHandle() -> uv_handle_p {
@@ -307,11 +333,10 @@ public class Handle<Type : uv_handle_type> : HandleBase {
     }
 }
 
-extension Handle {
-    //would prefer to use Self, but is not possible at the moment of writing
-    class func fromHandle<T : Handle>(handle:uv_handle_type) -> T {
+extension HandleType {
+    static func fromHandle(handle:uv_handle_type) -> Self {
         let handle:uv_handle_p = handle.cast()
-        return Unmanaged<T>.fromOpaque(COpaquePointer(handle.memory.data)).takeUnretainedValue()
+        return Unmanaged.fromOpaque(COpaquePointer(handle.memory.data)).takeUnretainedValue()
     }
 }
 
