@@ -39,8 +39,8 @@ public class Loop {
     deinit {
         if exclusive {
             defer {
+                loop.destroy(1)
                 loop.dealloc(1)
-                loop.destroy()
             }
             do {
                 try close()
