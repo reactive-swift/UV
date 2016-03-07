@@ -68,10 +68,9 @@ public class Loop {
         }
     }
     
-    public func run(mode:uv_run_mode = UV_RUN_DEFAULT) throws {
-        try Error.handle {
-            uv_run(loop, mode)
-        }
+    /// returns true if no more handles are there
+    public func run(mode:uv_run_mode = UV_RUN_DEFAULT) -> Bool {
+        return uv_run(loop, mode) == 0
     }
     
     public var alive:Bool {
