@@ -24,6 +24,8 @@ public protocol uv_handle_type {
     func testNil() throws
     
     mutating func nullify()
+    static func alloc() -> Self
+    mutating func dealloc()
 }
 
 extension UnsafeMutablePointer : uv_handle_type {
@@ -47,6 +49,15 @@ extension UnsafeMutablePointer : uv_handle_type {
     
     public mutating func nullify() {
         self = nil
+    }
+    
+    public static func alloc() -> UnsafeMutablePointer {
+        return UnsafeMutablePointer.alloc(1)
+    }
+    
+    mutating public func dealloc() {
+        self.destroy(1)
+        self.dealloc(1)
     }
 }
 
@@ -189,11 +200,19 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
         handle.nullify()
     }
     
-    init(handle:Type, wrap:Bool) {
-        self.handle = handle
+    init(_ initializer:(Type)->Int32) throws {
+        self.handle = Type.alloc()
         super.init()
-        if !wrap {
+        
+        do {
+            try Error.handle {
+                initializer(self.handle)
+            }
             baseHandle.memory.data = UnsafeMutablePointer<Void>(Unmanaged.passRetained(self).toOpaque())
+        } catch let e {
+            //cleanum if not created
+            handle.dealloc()
+            throw e
         }
     }
     

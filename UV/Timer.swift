@@ -25,17 +25,8 @@ public class Timer : Handle<uv_timer_p> {
     
     public init(loop:Loop, callback:TimerCallback) throws {
         self.callback = callback
-        super.init(handle: uv_timer_p.alloc(1), wrap: false)
-        
-        do {
-            try Error.handle {
-                uv_timer_init(loop.loop, self.handle)
-            }
-        } catch let e {
-            //cleanum if not created
-            handle.dealloc(1)
-            handle.destroy(1)
-            throw e
+        try super.init { handle in
+            uv_timer_init(loop.loop, handle)
         }
     }
     
