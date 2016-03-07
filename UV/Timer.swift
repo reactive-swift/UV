@@ -15,6 +15,7 @@
 //===-----------------------------------------------------------------------===//
 
 import CUV
+import Boilerplate
 
 public typealias uv_timer_p = UnsafeMutablePointer<uv_timer_t>
 
@@ -31,11 +32,11 @@ public class Timer : Handle<uv_timer_p> {
     }
     
     //uv_timer_start
-    public func start(timeout:UInt64, repeatTimeout:UInt64? = nil) throws {
+    public func start(timeout:Timeout, repeatTimeout:Timeout? = nil) throws {
         try doWithHandle { handle in
-            let repeatTimeout:UInt64 = repeatTimeout ?? 0
+            let repeatTimeout = repeatTimeout ?? .Immediate
             try Error.handle {
-                uv_timer_start(handle, timer_cb, timeout, repeatTimeout)
+                uv_timer_start(handle, timer_cb, timeout.uvTimeout, repeatTimeout.uvTimeout)
             }
         }
     }
@@ -58,15 +59,15 @@ public class Timer : Handle<uv_timer_p> {
         }
     }
     
-    public var repeatTimeout:UInt64 {
+    public var repeatTimeout:Timeout {
         //uv_timer_get_repeat
         get {
-            return handle.isNil() ? 0 : uv_timer_get_repeat(handle)
+            return handle.isNil() ? .Immediate : Timeout(uvTimeout: uv_timer_get_repeat(handle))
         }
         //uv_timer_set_repeat
         set {
             if !handle.isNil() {
-                uv_timer_set_repeat(handle, newValue)
+                uv_timer_set_repeat(handle, newValue.uvTimeout)
             }
         }
     }
@@ -76,4 +77,30 @@ public class Timer : Handle<uv_timer_p> {
 private func timer_cb(handle:uv_timer_p) {
     let timer:Timer = Timer.fromHandle(handle)
     timer.callback(timer)
+}
+
+extension Timeout {
+    init(uvTimeout:UInt64) {
+        switch uvTimeout {
+        case 0:
+            self = .Immediate
+        case UInt64.max:
+            self = .Infinity
+        default:
+            self = .In(timeout: Double(uvTimeout) / 1000)
+        }
+    }
+    
+    var uvTimeout:UInt64 {
+        get {
+            switch self {
+            case .Immediate:
+                return 0
+            case .Infinity:
+                return UInt64.max
+            case .In(let timeout):
+                return UInt64(timeout * 1000)
+            }
+        }
+    }
 }
