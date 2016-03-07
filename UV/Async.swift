@@ -34,7 +34,9 @@ public class Async : Handle<uv_async_p> {
     /// uv_async_send
     /// the only thread safe function in this lib
     public func send() {
-        uv_async_send(handle)
+        if !handle.isNil() {
+            uv_async_send(handle)
+        }
     }
 }
 
