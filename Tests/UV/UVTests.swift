@@ -29,16 +29,16 @@ class UVTests: XCTestCase {
             print("timer:", counter)
             if counter == 10 {
                 try! timer.stop()
-                try! timer.start(0, repeatTimeout: 100)
+                try! timer.start(.Immediate, repeatTimeout: .In(timeout: 0.1))
             }
             if counter > 20 {
                 timer.close()
             }
         }
         
-        try! timer.start(0, repeatTimeout: 50)
+        try! timer.start(.Immediate, repeatTimeout: .In(timeout: 0.05))
         
-        try! loop.run()
+        loop.run()
         
         print(timer.repeatTimeout)
     }
@@ -46,7 +46,7 @@ class UVTests: XCTestCase {
     func testExample() {
         let loop = try? Loop()
         
-        try! loop?.run()
+        loop?.run()
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }

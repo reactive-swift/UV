@@ -68,7 +68,7 @@ class LoopTests: XCTestCase {
         loop.updateTime()
         let time3 = loop.now
         usleep(10000)
-        try! loop.run()
+        loop.run()
         let time4 = loop.now
         
         XCTAssertEqual(time1, time2)
