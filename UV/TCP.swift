@@ -21,7 +21,7 @@ import CUV
 public typealias uv_tcp_p = UnsafeMutablePointer<uv_tcp_t>
 
 public class TCP : Stream<uv_tcp_p> {
-    public init(loop:Loop, connectionCallback:TCP.ConnectionCallback) throws {
+    public init(loop:Loop, connectionCallback:TCP.SimpleCallback) throws {
         try super.init(connectionCallback: connectionCallback) { handle in
             uv_tcp_init(loop.loop, handle)
         }

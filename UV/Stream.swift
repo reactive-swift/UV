@@ -29,29 +29,32 @@ public typealias uv_stream_p = UnsafeMutablePointer<uv_stream_t>
 extension uv_shutdown_t : uv_request_type {
 }
 
-internal protocol ConnectionCaller {
-    typealias ConnectionCallback = (Self)->Void
+public protocol SimpleCallbackCaller {
+    associatedtype SimpleCallback = (Self)->Void
 }
 
-public class Stream<Type : uv_stream_type> : Handle<Type>, ConnectionCaller {
+public class ShutdownRequest : Request<uv_shutdown_t> {
+}
+
+public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller {
     private lazy var streamHandle:UnsafeMutablePointer<uv_stream_t> = self.getStreamHandle()
     
-    private let connectionCallback:Stream<Type>.ConnectionCallback
+    private let connectionCallback:Stream<Type>.SimpleCallback
     
     private func getStreamHandle() -> UnsafeMutablePointer<uv_stream_t> {
         return handle.cast()
     }
     
-    init(connectionCallback:Stream<Type>.ConnectionCallback, _ initializer:(Type)->Int32) throws {
+    init(connectionCallback:Stream<Type>.SimpleCallback, _ initializer:(Type)->Int32) throws {
         self.connectionCallback = connectionCallback
         try super.init(initializer)
     }
     
-    public func shutdown(callback:Request<uv_shutdown_t>.Callback = {_,_ in}) throws {
+    public func shutdown(callback:ShutdownRequest.RequestCallback = {_,_ in}) throws {
         let req = Request<uv_shutdown_t>(callback)
         
         try Error.handle {
-            uv_shutdown(req.pointer, streamHandle, scb)
+            uv_shutdown(req.pointer, streamHandle, shutdown_cb)
         }
         
         req.alive()
@@ -64,12 +67,12 @@ public class Stream<Type : uv_stream_type> : Handle<Type>, ConnectionCaller {
     }
 }
 
-func scb(req:UnsafeMutablePointer<uv_shutdown_t>, status:Int32) {
+func shutdown_cb(req:UnsafeMutablePointer<uv_shutdown_t>, status:Int32) {
     req_cb(req, status: status)
 }
 
 func connection_cb(server:uv_stream_p, status:Int32) {
-    /*            let handle:uv_handle_p = server.cast()
-    let stream = Stream<Type>.fromHandle(handle)
-    stream.connectionCallback(stream)*/
+    let handle:uv_handle_p = server.cast()
+    let stream = Stream<uv_stream_p>.fromHandle(handle)
+    stream.connectionCallback(stream)
 }

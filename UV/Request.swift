@@ -16,6 +16,8 @@
 
 import Foundation
 
+import Boilerplate
+
 import CUV
 
 public typealias uv_req_p = UnsafeMutablePointer<uv_req_t>
@@ -35,8 +37,8 @@ public protocol uv_request_type {
 internal extension uv_request_type {
     internal var request:Request<uv_req_t> {
         get {
-            let req = unsafeBitCast(self, uv_req_t.self)
-            return Unmanaged<Request<uv_req_t>>.fromOpaque(COpaquePointer(req.data)).takeUnretainedValue()
+            let req = unsafeBitCast(self, to: uv_req_t.self)
+            return Unmanaged<Request<uv_req_t>>.fromOpaque(OpaquePointer(req.data)).takeUnretainedValue()
         }
     }
 }
@@ -44,23 +46,25 @@ internal extension uv_request_type {
 extension uv_req_t : uv_request_type {
 }
 
-public class Request<Type: uv_request_type> {
+public protocol RequestCallbackCaller {
+    associatedtype RequestCallback = (Self, Int32)->Void
+}
+
+public class Request<Type: uv_request_type> : RequestCallbackCaller {
     internal let _req:UnsafeMutablePointer<Type>
     private let _baseReq:UnsafeMutablePointer<uv_req_t>
     
-    public typealias Callback = (request:Request<Type>, status:Int32) -> Void
+    private let _callback:Request<Type>.RequestCallback
     
-    private let _callback:Callback
-    
-    internal init(_ callback:Callback) {
-        self._req = UnsafeMutablePointer.alloc(1)
+    internal init(_ callback:Request<Type>.RequestCallback) {
+        self._req = UnsafeMutablePointer(allocatingCapacity: 1)
         self._baseReq = UnsafeMutablePointer(_req)
         self._callback = callback
     }
     
     deinit {
-        _req.destroy(1)
-        _req.dealloc(1)
+        _req.deinitialize(count: 1)
+        _req.deallocateCapacity(1)
     }
     
     internal var pointer:UnsafeMutablePointer<Type> {
@@ -68,15 +72,15 @@ public class Request<Type: uv_request_type> {
     }
     
     internal func alive() {
-        _baseReq.memory.data = UnsafeMutablePointer(Unmanaged.passRetained(self).toOpaque())
+        _baseReq.pointee.data = UnsafeMutablePointer(OpaquePointer(bitPattern: Unmanaged.passRetained(self)))
     }
     
     internal func kill() {
-        Unmanaged<Request<Type>>.fromOpaque(COpaquePointer(_baseReq.memory.data)).release()
+        Unmanaged<Request<Type>>.fromOpaque(OpaquePointer(_baseReq.pointee.data)).release()
     }
     
     private func call(status:Int32) {
-        _callback(request: self, status: status)
+        _callback(self, status)
     }
     
     public func cancel() throws {
@@ -87,7 +91,7 @@ public class Request<Type: uv_request_type> {
 }
 
 internal func req_cb<Type: uv_request_type>(req:UnsafeMutablePointer<Type>, status:Int32) {
-    let request = req.memory.request
+    let request = req.pointee.request
     defer {
         request.kill()
     }
