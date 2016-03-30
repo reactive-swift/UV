@@ -18,10 +18,6 @@ import PackageDescription
 
 let package = Package(
     name: "UV",
-    targets: [
-        Target(
-            name: "UV"
-        ),
-    ],
+    targets: [Target(name: "UV")],
     dependencies: [.Package(url: "https://github.com/crossroadlabs/CUV.git", majorVersion: 0)]
 )

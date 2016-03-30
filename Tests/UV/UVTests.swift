@@ -38,8 +38,8 @@ class UVTests: XCTestCase {
 }
 
 #if os(Linux)
-extension UVTests : XCTestCaseProvider {
-	var allTests : [(String, () throws -> Void)] {
+extension UVTests {
+	static var allTests : [(String, UVTests -> () throws -> Void)] {
 		return [
 			("testExample", testExample),
 			("testPerformanceExample", testPerformanceExample),
