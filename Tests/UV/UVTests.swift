@@ -47,8 +47,6 @@ class UVTests: XCTestCase {
         let loop = try? Loop()
         
         loop?.run()
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
     
 }
@@ -58,7 +56,7 @@ extension UVTests {
 	static var allTests : [(String, UVTests -> () throws -> Void)] {
 		return [
 			("testExample", testExample),
-			("testPerformanceExample", testPerformanceExample),
+			("testTimer", testTimer),
 		]
 	}
 }
