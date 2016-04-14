@@ -19,20 +19,36 @@ import XCTest
 import CUV
 
 class UVTests: XCTestCase {
+        
+    func testTimer() {
+        var counter = 0
+        
+        let loop = try! Loop()
+        let timer = try! Timer(loop: loop) { timer in
+            counter += 1
+            print("timer:", counter)
+            if counter == 10 {
+                try! timer.stop()
+                try! timer.start(.Immediate, repeatTimeout: .In(timeout: 0.1))
+            }
+            if counter > 20 {
+                timer.close()
+            }
+        }
+        
+        try! timer.start(.Immediate, repeatTimeout: .In(timeout: 0.05))
+        
+        loop.run()
+        
+        print(timer.repeatTimeout)
+    }
     
     func testExample() {
         let loop = try? Loop()
         
-        try! loop?.run()
+        loop?.run()
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock {
-            // Put the code you want to measure the time of here.
-        }
     }
     
 }

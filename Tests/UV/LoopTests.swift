@@ -68,7 +68,7 @@ class LoopTests: XCTestCase {
         loop.updateTime()
         let time3 = loop.now
         usleep(10000)
-        try! loop.run()
+        loop.run()
         let time4 = loop.now
         
         XCTAssertEqual(time1, time2)
@@ -87,7 +87,21 @@ class LoopTests: XCTestCase {
         
         XCTAssertEqual(n, 0)
         
-        //TODO: add source, walk again, test for 1
+        let timer = try! Timer(loop: loop) { timer in
+        }
+        
+        n = 0
+        loop.walk { handle in
+            n += 1
+        }
+        
+        XCTAssertEqual(n, 1)
+        
+        XCTAssertEqual(loop.handles.count, 1)
+        
+        for handle in loop.handles {
+            XCTAssertEqual(handle.baseHandle, timer.baseHandle)
+        }
     }
 }
 

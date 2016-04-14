@@ -15,21 +15,19 @@
 //===----------------------------------------------------------------------===//
 
 import CUV
+import Boilerplate
 
 //TODO: make enum
-public struct Error : ErrorType {
-    public let code:Int32
-    
-    init(code:Int32) {
-        self.code = code
-    }
+public enum Error : ErrorProtocol {
+    case WithCode(code:Int32)
+    case HandleClosed
 }
 
 public extension Error {
     public static func handle(@noescape fun:()->Int32) throws {
         let result = fun()
         if result < 0 {
-            throw Error(code: result)
+            throw Error.WithCode(code: result)
         }
     }
     
@@ -37,23 +35,21 @@ public extension Error {
         var code:Int32 = 0
         let result = fun(code: &code)
         if code < 0 {
-            throw Error(code: code)
+            throw Error.WithCode(code: code)
         }
         return result
     }
 }
 
-extension Error : Equatable {
-}
-
-public func ==(lhs: Error, rhs: Error) -> Bool {
-    return lhs.code == rhs.code
-}
-
 public extension Error {
     public var name:String {
         get {
-            return String.fromCString(uv_err_name(code))!
+            switch self {
+            case .HandleClosed:
+                return "HandleClosed"
+            case .WithCode(let code):
+                return String(cString: uv_err_name(code))
+            }
         }
     }
 }
@@ -61,7 +57,12 @@ public extension Error {
 extension Error : CustomStringConvertible {
     public var description: String {
         get {
-            return String.fromCString(uv_strerror(code))!
+            switch self {
+            case .HandleClosed:
+                return "The handle you are trying to is was already closed"
+            case .WithCode(let code):
+                return String(cString: uv_strerror(code))
+            }
         }
     }
 }
