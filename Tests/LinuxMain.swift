@@ -1,8 +1,8 @@
 import XCTest
 
-@testable import UVtest
+@testable import UVTestSuite
 
 XCTMain([
-	LoopTests(),
-	UVTests(),
+	testCase(LoopTests.allTests),
+	testCase(UVTests.allTests),
 ])
