@@ -4,10 +4,7 @@ env:
 matrix:
   include:
     - script:
-        - xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-OSX
-        - xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-iOS -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6'
-        - xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-tvOS -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV 1080p'
-        - xcodebuild build -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME-watchOS -sdk watchsimulator -destination 'platform=watchOS Simulator,name=Apple Watch - 42mm'
+        - xcodebuild test -project $MODULE_NAME.xcodeproj -scheme $MODULE_NAME
       os: osx
       osx_image: xcode7.3
       language: objective-c
@@ -19,7 +16,7 @@ matrix:
       before_script:
         # bootstrap the dependencies for the project
         # you can remove if you don't have dependencies
-        - carthage bootstrap
+        - carthage bootstrap --platform mac
       before_deploy:
         - carthage build --no-skip-current
         - carthage archive $MODULE_NAME
@@ -31,7 +28,7 @@ matrix:
         file: $MODULE_NAME.framework.zip
         skip_cleanup: true
         on:
-          repo: crossroadlabs/ExecutionContext
+          repo: crossroadlabs/UV
           tags: true
     - script:
         - ./build test
