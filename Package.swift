@@ -19,5 +19,8 @@ import PackageDescription
 let package = Package(
     name: "UV",
     targets: [Target(name: "UV")],
-    dependencies: [.Package(url: "https://github.com/crossroadlabs/CUV.git", majorVersion: 0)]
+    dependencies: [
+        .Package(url: "https://github.com/crossroadlabs/CUV.git", majorVersion: 0, minor: 1),
+        .Package(url: "https://github.com/crossroadlabs/Boilerplate.git", majorVersion: 0, minor: 1)
+    ]
 )

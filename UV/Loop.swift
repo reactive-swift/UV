@@ -29,7 +29,7 @@ public class Loop {
     }
     
     public init() throws {
-        loop = uv_loop_p.alloc(1)
+        loop = uv_loop_p(allocatingCapacity: 1)
         exclusive = true
         try Error.handle {
             uv_loop_init(loop)
@@ -39,8 +39,8 @@ public class Loop {
     deinit {
         if exclusive {
             defer {
-                loop.destroy(1)
-                loop.dealloc(1)
+                loop.deinitialize(count: 1)
+                loop.deallocateCapacity(1)
             }
             do {
                 try close()
@@ -114,7 +114,7 @@ public class Loop {
     
     public func walk(f:LoopWalkCallback) {
         let container = AnyContainer(f)
-        let arg = UnsafeMutablePointer<Void>(Unmanaged.passUnretained(container).toOpaque())
+        let arg = UnsafeMutablePointer<Void>(OpaquePointer(bitPattern:Unmanaged.passUnretained(container)))
         uv_walk(loop, loop_walker, arg)
     }
     
@@ -128,7 +128,7 @@ public class Loop {
 public typealias LoopWalkCallback = (HandleType)->Void
 
 private func loop_walker(handle:uv_handle_p, arg:UnsafeMutablePointer<Void>) {
-    let container = Unmanaged<AnyContainer<LoopWalkCallback>>.fromOpaque(COpaquePointer(arg)).takeUnretainedValue()
+    let container = Unmanaged<AnyContainer<LoopWalkCallback>>.fromOpaque(OpaquePointer(arg)).takeUnretainedValue()
     let callback = container.content
     let handle:Handle<uv_handle_p> = Handle.fromHandle(handle)
     callback(handle)

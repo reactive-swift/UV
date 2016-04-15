@@ -14,6 +14,8 @@
 //limitations under the License.
 //===-----------------------------------------------------------------------===//
 
+import Boilerplate
+
 import CUV
 
 public protocol uv_handle_type {
@@ -52,28 +54,28 @@ extension UnsafeMutablePointer : uv_handle_type {
     }
     
     public static func alloc() -> UnsafeMutablePointer {
-        return UnsafeMutablePointer.alloc(1)
+        return UnsafeMutablePointer(allocatingCapacity: 1)
     }
     
     mutating public func dealloc() {
-        self.destroy(1)
-        self.dealloc(1)
+        self.deinitialize(count: 1)
+        self.deallocateCapacity(1)
     }
 }
 
 public typealias uv_handle_p = UnsafeMutablePointer<uv_handle_t>
 
 protocol PropertyType {
-    typealias Object
-    typealias Type
+    associatedtype Object
+    associatedtype `Type`
     
     static func name() -> String
     
-    static func getterValue() -> Type
-    static func function() -> (Object, UnsafeMutablePointer<Type>) -> Int32
+    static func getterValue() -> `Type`
+    static func function() -> (Object, UnsafeMutablePointer<`Type`>) -> Int32
     
-    static func read(object:Object) throws -> Type
-    static func write(object:Object, value:Type) throws
+    static func read(object:Object) throws -> `Type`
+    static func write(object:Object, value:`Type`) throws
 }
 
 extension PropertyType {
@@ -122,7 +124,7 @@ private extension BufferPropertyType where Type == Int32 {
 
 private class SendBufferSizeProperty : BufferPropertyType {
     typealias Object = uv_handle_p
-    typealias Type = Int32
+    typealias `Type` = Int32
     
     static func name() -> String {
         return "send buffer size"
@@ -135,7 +137,7 @@ private class SendBufferSizeProperty : BufferPropertyType {
 
 private class RecvBufferSizeProperty : BufferPropertyType {
     typealias Object = uv_handle_p
-    typealias Type = Int32
+    typealias `Type` = Int32
     
     static func name() -> String {
         return "recv buffer size"
@@ -177,7 +179,19 @@ public protocol HandleType : AnyObject {
 }
 
 public class HandleBase {
-    public lazy var baseHandle:uv_handle_p = self.getBaseHandle()
+    private var _baseHandle:uv_handle_p?
+    
+    public var baseHandle:uv_handle_p {
+        get {
+            if _baseHandle == nil {
+                _baseHandle = getBaseHandle()
+            }
+            return _baseHandle!
+        }
+        set {
+            _baseHandle = newValue
+        }
+    }
     
     func getBaseHandle() -> uv_handle_p {
         return nil
@@ -208,7 +222,7 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
             try Error.handle {
                 initializer(self.handle)
             }
-            baseHandle.memory.data = UnsafeMutablePointer<Void>(Unmanaged.passRetained(self).toOpaque())
+            baseHandle.pointee.data = UnsafeMutablePointer<Void>(OpaquePointer(bitPattern: Unmanaged.passRetained(self)))
         } catch let e {
             //cleanum if not created
             handle.dealloc()
@@ -232,7 +246,7 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
     public var loop:Loop? {
         get {
             return try? doWithBaseHandle { handle in
-                Loop(loop: handle.memory.loop)
+                Loop(loop: handle.pointee.loop)
             }
         }
     }
@@ -355,17 +369,17 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
 extension HandleType {
     static func fromHandle(handle:uv_handle_type) -> Self {
         let handle:uv_handle_p = handle.cast()
-        return Unmanaged.fromOpaque(COpaquePointer(handle.memory.data)).takeUnretainedValue()
+        return Unmanaged.fromOpaque(OpaquePointer(handle.pointee.data)).takeUnretainedValue()
     }
 }
 
 private func handle_close_cb(handle:uv_handle_p) {
-    if handle.memory.data != nil {
-        let object = Unmanaged<HandleBase>.fromOpaque(COpaquePointer(handle.memory.data)).takeRetainedValue()
-        handle.memory.data = nil
+    if handle.pointee.data != nil {
+        let object = Unmanaged<HandleBase>.fromOpaque(OpaquePointer(handle.pointee.data)).takeRetainedValue()
+        handle.pointee.data = nil
         object.clearHandle()
     }
     
-    handle.destroy(1)
-    handle.dealloc(1)
+    handle.deinitialize(count: 1)
+    handle.deallocateCapacity(1)
 }

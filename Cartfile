@@ -1,2 +1,2 @@
 github "crossroadlabs/CUV" ~> 0.1
-github "crossroadlabs/Boilerplate" "master"
+github "crossroadlabs/Boilerplate" ~> 0.1

@@ -15,9 +15,10 @@
 //===----------------------------------------------------------------------===//
 
 import CUV
+import Boilerplate
 
 //TODO: make enum
-public enum Error : ErrorType {
+public enum Error : ErrorProtocol {
     case WithCode(code:Int32)
     case HandleClosed
 }
@@ -47,7 +48,7 @@ public extension Error {
             case .HandleClosed:
                 return "HandleClosed"
             case .WithCode(let code):
-                return String.fromCString(uv_err_name(code))!
+                return String(cString: uv_err_name(code))
             }
         }
     }
@@ -60,7 +61,7 @@ extension Error : CustomStringConvertible {
             case .HandleClosed:
                 return "The handle you are trying to is was already closed"
             case .WithCode(let code):
-                return String.fromCString(uv_strerror(code))!
+                return String(cString: uv_strerror(code))
             }
         }
     }
