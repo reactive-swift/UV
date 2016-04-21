@@ -39,13 +39,13 @@ public class ShutdownRequest : Request<uv_shutdown_t> {
 public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller {
     private lazy var streamHandle:UnsafeMutablePointer<uv_stream_t> = self.getStreamHandle()
     
-    private let connectionCallback:Stream<Type>.SimpleCallback
+    private let connectionCallback:Stream.SimpleCallback
     
     private func getStreamHandle() -> UnsafeMutablePointer<uv_stream_t> {
         return handle.cast()
     }
     
-    init(connectionCallback:Stream<Type>.SimpleCallback, _ initializer:(Type)->Int32) throws {
+    init(connectionCallback:Stream.SimpleCallback, _ initializer:(Type)->Int32) throws {
         self.connectionCallback = connectionCallback
         try super.init(initializer)
     }
