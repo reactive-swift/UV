@@ -31,7 +31,7 @@ public class Loop {
     public init() throws {
         loop = uv_loop_p(allocatingCapacity: 1)
         exclusive = true
-        try Error.handle {
+        try ccall(Error.self) {
             uv_loop_init(loop)
         }
     }
@@ -63,7 +63,7 @@ public class Loop {
     }*/
     
     private func close() throws {
-        try Error.handle {
+        try ccall(Error.self) {
             uv_loop_close(loop)
         }
     }

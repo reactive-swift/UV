@@ -84,7 +84,7 @@ public class Request<Type: uv_request_type> : RequestCallbackCaller {
     }
     
     public func cancel() throws {
-        try Error.handle {
+        try ccall(Error.self) {
             uv_cancel(_baseReq)
         }
     }

@@ -80,7 +80,7 @@ protocol PropertyType {
 
 extension PropertyType {
     static func read(object:Object) throws -> Type {
-        return try Error.handle { code in
+        return try ccall(Error.self) { code in
             var value:Type = getterValue()
             code = function()(object, &value)
             return value
@@ -89,7 +89,7 @@ extension PropertyType {
     
     static func write(object:Object, value:Type) throws {
         var value:Type = value
-        try Error.handle {
+        try ccall(Error.self) {
             function()(object, &value)
         }
     }
@@ -219,7 +219,7 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
         super.init()
         
         do {
-            try Error.handle {
+            try ccall(Error.self) {
                 initializer(self.handle)
             }
             baseHandle.pointee.data = UnsafeMutablePointer<Void>(OpaquePointer(bitPattern: Unmanaged.passRetained(self)))
@@ -351,7 +351,7 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
     //present, because properties can not throw. So both ways
     public func getFileno() throws -> uv_os_fd_t {
         return try doWithBaseHandle { handle in
-            try Error.handle { code in
+            try ccall(Error.self) { code in
                 var fileno = uv_os_fd_t()
                 code = uv_fileno(handle, &fileno)
                 return fileno

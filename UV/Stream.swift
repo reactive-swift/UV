@@ -15,6 +15,7 @@
 //===-----------------------------------------------------------------------===//
 
 import Foundation
+import Boilerplate
 
 import CUV
 
@@ -53,7 +54,7 @@ public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller 
     public func shutdown(callback:ShutdownRequest.RequestCallback = {_,_ in}) throws {
         let req = Request<uv_shutdown_t>(callback)
         
-        try Error.handle {
+        try ccall(Error.self) {
             uv_shutdown(req.pointer, streamHandle, shutdown_cb)
         }
         
@@ -61,7 +62,7 @@ public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller 
     }
     
     public func listen(backlog:Int32) throws {
-        try Error.handle {
+        try ccall(Error.self) {
             uv_listen(streamHandle, backlog, connection_cb)
         }
     }

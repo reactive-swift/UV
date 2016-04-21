@@ -23,21 +23,13 @@ public enum Error : ErrorProtocol {
     case HandleClosed
 }
 
-public extension Error {
-    public static func handle(@noescape fun:()->Int32) throws {
-        let result = fun()
-        if result < 0 {
-            throw Error.WithCode(code: result)
-        }
+extension Error : ErrorWithCodeType {
+    public init(code:Int32) {
+        self = .WithCode(code: code)
     }
     
-    public static func handle<Value>(@noescape fun:(inout code:Int32)->Value) throws -> Value {
-        var code:Int32 = 0
-        let result = fun(code: &code)
-        if code < 0 {
-            throw Error.WithCode(code: code)
-        }
-        return result
+    public static func isError(code:Int32) -> Bool {
+        return code < 0
     }
 }
 
