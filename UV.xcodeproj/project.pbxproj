@@ -25,6 +25,7 @@
 		6585669F1C7C92DB003B0E08 /* Loop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6585669E1C7C92DB003B0E08 /* Loop.swift */; };
 		658566A11C7C9315003B0E08 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658566A01C7C9315003B0E08 /* Error.swift */; };
 		658C31701C8DD854009CCC7A /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658C316F1C8DD854009CCC7A /* Async.swift */; };
+		65CBF4781CC8DCA2004C27B4 /* StreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 		6585669E1C7C92DB003B0E08 /* Loop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Loop.swift; sourceTree = "<group>"; };
 		658566A01C7C9315003B0E08 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		658C316F1C8DD854009CCC7A /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
+		65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
 				658566911C7C7912003B0E08 /* UVTests.swift */,
 				658566931C7C7912003B0E08 /* Info.plist */,
 				65063F3F1C7CECDE00E1F8FE /* LoopTests.swift */,
+				65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */,
 			);
 			name = UVTests;
 			path = Tests/UV;
@@ -295,6 +298,7 @@
 			files = (
 				658566921C7C7912003B0E08 /* UVTests.swift in Sources */,
 				65063F401C7CECDE00E1F8FE /* LoopTests.swift in Sources */,
+				65CBF4781CC8DCA2004C27B4 /* StreamTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
