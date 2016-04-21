@@ -47,7 +47,7 @@ extension uv_req_t : uv_request_type {
 }
 
 public protocol RequestCallbackCaller {
-    associatedtype RequestCallback = (Self, Int32)->Void
+    associatedtype RequestCallback = (Self, Error?)->Void
 }
 
 public class Request<Type: uv_request_type> : RequestCallbackCaller {
@@ -80,13 +80,24 @@ public class Request<Type: uv_request_type> : RequestCallbackCaller {
     }
     
     private func call(status:Int32) {
-        _callback(self, status)
+        _callback(self, Error.error(status))
     }
     
     public func cancel() throws {
         try ccall(Error.self) {
             uv_cancel(_baseReq)
         }
+    }
+    
+    public static func perform(callback:RequestCallback, action:(UnsafeMutablePointer<Type>)->Int32) {
+        let req = Request(callback)
+        
+        if let error = Error.error(action(req.pointer)) {
+            callback(req, error)
+            return
+        }
+        
+        req.alive()
     }
 }
 

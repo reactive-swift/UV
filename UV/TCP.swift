@@ -15,10 +15,17 @@
 //===-----------------------------------------------------------------------===//
 
 import Foundation
+import Boilerplate
 
 import CUV
 
 public typealias uv_tcp_p = UnsafeMutablePointer<uv_tcp_t>
+
+extension uv_connect_t : uv_request_type {
+}
+
+public class ConnectRequest : Request<uv_connect_t> {
+}
 
 public class TCP : Stream<uv_tcp_p> {
     public init(loop:Loop, connectionCallback:TCP.SimpleCallback) throws {
@@ -26,4 +33,21 @@ public class TCP : Stream<uv_tcp_p> {
             uv_tcp_init(loop.loop, handle)
         }
     }
+    
+    public func bind(addr:UnsafePointer<sockaddr>, ipV6only:Bool = false) throws {
+        let flags:UInt32 = ipV6only ? UV_TCP_IPV6ONLY.rawValue : 0
+        try ccall(Error.self) {
+            uv_tcp_bind(handle, addr, flags)
+        }
+    }
+    
+    public func connect(addr:UnsafePointer<sockaddr>, callback:ConnectRequest.RequestCallback = {_,_ in}) {
+        ConnectRequest.perform(callback) { req in
+            uv_tcp_connect(req, self.handle, addr, connect_cb)
+        }
+    }
+}
+
+func connect_cb(req:UnsafeMutablePointer<uv_connect_t>, status:Int32) {
+    req_cb(req, status: status)
 }

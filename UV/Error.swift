@@ -31,6 +31,10 @@ extension Error : ErrorWithCodeType {
     public static func isError(code:Int32) -> Bool {
         return code < 0
     }
+    
+    public static func error(code:Int32) -> Error? {
+        return isError(code) ? Error(code: code) : nil
+    }
 }
 
 public extension Error {

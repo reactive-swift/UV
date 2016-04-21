@@ -51,14 +51,10 @@ public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller 
         try super.init(initializer)
     }
     
-    public func shutdown(callback:ShutdownRequest.RequestCallback = {_,_ in}) throws {
-        let req = Request<uv_shutdown_t>(callback)
-        
-        try ccall(Error.self) {
-            uv_shutdown(req.pointer, streamHandle, shutdown_cb)
+    public func shutdown(callback:ShutdownRequest.RequestCallback = {_,_ in}) {
+        ShutdownRequest.perform(callback) { req in
+            uv_shutdown(req, self.streamHandle, shutdown_cb)
         }
-        
-        req.alive()
     }
     
     public func listen(backlog:Int32) throws {
