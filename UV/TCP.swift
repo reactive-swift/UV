@@ -27,11 +27,19 @@ extension uv_connect_t : uv_request_type {
 public class ConnectRequest : Request<uv_connect_t> {
 }
 
-public class TCP : Stream<uv_tcp_p> {
+public final class TCP : Stream<uv_tcp_p> {
     public init(loop:Loop, connectionCallback:TCP.SimpleCallback) throws {
         try super.init(connectionCallback: connectionCallback) { handle in
             uv_tcp_init(loop.loop, handle)
         }
+    }
+    
+    func fresh<A>(tcp:TCP) -> A {
+        return tcp as! A
+    }
+    
+    override func fresh(with loop:Loop) throws -> Self {
+        return try fresh(TCP(loop: loop) {_ in})
     }
     
     public func bind(addr:UnsafePointer<sockaddr>, ipV6only:Bool = false) throws {

@@ -37,13 +37,21 @@ public protocol SimpleCallbackCaller {
 public class ShutdownRequest : Request<uv_shutdown_t> {
 }
 
-public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller {
+internal protocol StreamProtocol {
+    func fresh(with loop:Loop) throws -> Self
+}
+
+public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller, StreamProtocol {
     private lazy var streamHandle:UnsafeMutablePointer<uv_stream_t> = self.getStreamHandle()
     
     private let connectionCallback:Stream.SimpleCallback
     
     private func getStreamHandle() -> UnsafeMutablePointer<uv_stream_t> {
         return handle.cast()
+    }
+    
+    func fresh(with loop:Loop) throws -> Self {
+        CommonRuntimeError.NotImplemented(what: "static func fresh(with loop:Loop) -> Self").panic()
     }
     
     init(connectionCallback:Stream.SimpleCallback, _ initializer:(Type)->Int32) throws {
@@ -61,6 +69,15 @@ public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller 
         try ccall(Error.self) {
             uv_listen(streamHandle, backlog, connection_cb)
         }
+    }
+    
+    public func accept() throws -> Self {
+        let new = try self.fresh(with: loop!)
+        try ccall(Error.self) {
+            uv_accept(self.streamHandle, new.streamHandle)
+        }
+        
+        return new
     }
 }
 
