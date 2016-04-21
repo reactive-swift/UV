@@ -9,16 +9,21 @@
 import Foundation
 
 import XCTest
+import XCTest3
 @testable import UV
 import CUV
 
 class StreamTests: XCTestCase {
     func testConnectability() {
+        let acceptedExpectation = self.expectation(withDescription: "ACCEPTED")
+        let connectedExpectation = self.expectation(withDescription: "CONNECTED")
+        
         let loop = try! Loop()
         let server = try! TCP(loop: loop) { server in
             let accepted = try! server.accept()
             accepted.close()
             server.close()
+            acceptedExpectation.fulfill()
         }
         var addr = sockaddr_in()
         
@@ -34,10 +39,12 @@ class StreamTests: XCTestCase {
         
         withUnsafePointer(&addr) { pointer in
             client.connect(UnsafePointer(pointer)) { req, e in
-                print("connected")
+                connectedExpectation.fulfill()
             }
         }
         
         loop.run(UV_RUN_DEFAULT)
+        
+        self.waitForExpectations(withTimeout: 0)
     }
 }

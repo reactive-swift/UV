@@ -26,6 +26,8 @@
 		658566A11C7C9315003B0E08 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658566A01C7C9315003B0E08 /* Error.swift */; };
 		658C31701C8DD854009CCC7A /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658C316F1C8DD854009CCC7A /* Async.swift */; };
 		65CBF4781CC8DCA2004C27B4 /* StreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */; };
+		65CBF47A1CC8F836004C27B4 /* XCTest3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65CBF4791CC8F836004C27B4 /* XCTest3.framework */; };
+		65CBF47B1CC8F847004C27B4 /* XCTest3.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 65CBF4791CC8F836004C27B4 /* XCTest3.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +49,7 @@
 			files = (
 				65465E6F1C8B737F0080BAAE /* Boilerplate.framework in Copy Frameworks */,
 				65465E701C8B737F0080BAAE /* Result.framework in Copy Frameworks */,
+				65CBF47B1CC8F847004C27B4 /* XCTest3.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -72,6 +75,7 @@
 		658566A01C7C9315003B0E08 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		658C316F1C8DD854009CCC7A /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamTests.swift; sourceTree = "<group>"; };
+		65CBF4791CC8F836004C27B4 /* XCTest3.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest3.framework; path = Carthage/Build/Mac/XCTest3.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65CBF47A1CC8F836004C27B4 /* XCTest3.framework in Frameworks */,
 				6585668D1C7C7912003B0E08 /* UV.framework in Frameworks */,
 				65465E6D1C8B737D0080BAAE /* Boilerplate.framework in Frameworks */,
 				65465E6E1C8B737D0080BAAE /* Result.framework in Frameworks */,
@@ -100,6 +105,7 @@
 		65465E6B1C8B733C0080BAAE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				65CBF4791CC8F836004C27B4 /* XCTest3.framework */,
 				65465E671C8B73380080BAAE /* Boilerplate.framework */,
 				65465E681C8B73380080BAAE /* Result.framework */,
 			);
