@@ -15,14 +15,33 @@ import CUV
 
 class StreamTests: XCTestCase {
     func testConnectability() {
+        let string = "Hello TCP"
+        let array:[UInt8] = Array(string.utf8)
+        
         let acceptedExpectation = self.expectation(withDescription: "ACCEPTED")
         let connectedExpectation = self.expectation(withDescription: "CONNECTED")
         
         let loop = try! Loop()
-        let server = try! TCP(loop: loop) { server in
-            let accepted = try! server.accept()
-            accepted.close()
+        let server = try! TCP(loop: loop) { (server:Stream<uv_tcp_p>) -> Void in
+            let accepted = try! server.accept { stream, result in
+                guard let data = result.value else {
+                    XCTFail(result.error!.description)
+                    return
+                }
+                
+                XCTAssertEqual(data.array, array)
+                
+                let writeBackExpectation = self.expectation(withDescription: "WRITE BACK")
+                
+                stream.write(data) { req, e in
+                    XCTAssertNil(e)
+                    writeBackExpectation.fulfill()
+                }
+                stream.close()
+            }
             server.close()
+            
+            try! accepted.startReading()
             acceptedExpectation.fulfill()
         }
         var addr = sockaddr_in()
@@ -35,11 +54,29 @@ class StreamTests: XCTestCase {
         
         try! server.listen(125)
         
-        let client = try! TCP(loop: loop) {_ in}
+        let client = try! TCP(loop: loop) { stream, result in
+            guard let data = result.value else {
+                XCTFail(result.error!.description)
+                return
+            }
+            
+            XCTAssertEqual(data.array, array)
+            
+            stream.close()
+        }
         
         withUnsafePointer(&addr) { pointer in
             client.connect(UnsafePointer(pointer)) { req, e in
+                XCTAssertNil(e)
                 connectedExpectation.fulfill()
+                
+                let data = Data(data: array)
+                
+                client.write(data) { req, e in
+                    XCTAssertNil(e)
+                    data.destroy()
+                }
+                try! client.startReading()
             }
         }
         

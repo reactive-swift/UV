@@ -28,18 +28,26 @@ public class ConnectRequest : Request<uv_connect_t> {
 }
 
 public final class TCP : Stream<uv_tcp_p> {
-    public init(loop:Loop, connectionCallback:TCP.SimpleCallback) throws {
-        try super.init(connectionCallback: connectionCallback) { handle in
+    public init(loop:Loop, connectionCallback:TCP.SimpleCallback, readCallback:TCP.ReadCallback) throws {
+        try super.init(readCallback: readCallback, connectionCallback: connectionCallback) { handle in
             uv_tcp_init(loop.loop, handle)
         }
+    }
+    
+    public convenience init(loop:Loop, readCallback:TCP.ReadCallback) throws {
+        try self.init(loop: loop, connectionCallback: {_ in}, readCallback: readCallback)
+    }
+    
+    public convenience init(loop:Loop, connectionCallback:TCP.SimpleCallback) throws {
+        try self.init(loop: loop, connectionCallback: connectionCallback, readCallback: {_,_ in})
     }
     
     func fresh<A>(tcp:TCP) -> A {
         return tcp as! A
     }
     
-    override func fresh(with loop:Loop) throws -> Self {
-        return try fresh(TCP(loop: loop) {_ in})
+    override func fresh(with loop:Loop, readCallback:ReadCallback) throws -> Self {
+        return try fresh(TCP(loop: loop, readCallback: readCallback))
     }
     
     public func bind(addr:UnsafePointer<sockaddr>, ipV6only:Bool = false) throws {
