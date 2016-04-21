@@ -37,8 +37,11 @@ public protocol uv_request_type {
 internal extension uv_request_type {
     internal var request:Request<uv_req_t> {
         get {
-            let req = unsafeBitCast(self, to: uv_req_t.self)
-            return Unmanaged<Request<uv_req_t>>.fromOpaque(OpaquePointer(req.data)).takeUnretainedValue()
+            var this = self
+            let req = withUnsafePointer(&this) { pointer in
+                UnsafePointer<uv_req_t>(pointer)
+            }
+            return Unmanaged<Request<uv_req_t>>.fromOpaque(OpaquePointer(req.pointee.data)).takeUnretainedValue()
         }
     }
 }
