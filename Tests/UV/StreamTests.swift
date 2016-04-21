@@ -27,7 +27,7 @@ class StreamTests: XCTestCase {
         }
         var addr = sockaddr_in()
         
-        uv_ip4_addr("127.0.0.1", 45678, &addr)
+        XCTAssertGreaterThanOrEqual(uv_ip4_addr("127.0.0.1", 45678, &addr), 0)
         
         try! withUnsafePointer(&addr) { pointer in
             try server.bind(UnsafePointer(pointer))
