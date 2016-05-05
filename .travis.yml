@@ -28,7 +28,7 @@ matrix:
         file: $MODULE_NAME.framework.zip
         skip_cleanup: true
         on:
-          repo: crossroadlabs/UV
+          repo: reactive-swift/UV
           tags: true
     - script:
         - ./build test
