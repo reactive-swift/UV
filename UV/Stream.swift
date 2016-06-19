@@ -242,7 +242,7 @@ func read_cb(stream:uv_stream_p, nread:ssize_t, bufp:UnsafePointer<uv_buf_t>) {
     let e = Error.error(Int32(nread))
     let result:Result<DataProtocol, Error> = e.map { e in
         Result(error: e)
-    }.getOrElse {
+    }.getOr {
         let data = UVData(size: nread, buffers: bufp)
         return Result(data)
     }

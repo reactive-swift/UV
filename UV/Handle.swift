@@ -40,7 +40,7 @@ extension UnsafeMutablePointer : uv_handle_type {
     }
     
     public func isNil() -> Bool {
-        return self == nil
+        return self == .null
     }
     
     public func testNil() throws {
@@ -183,7 +183,7 @@ public class HandleBase {
     
     public var baseHandle:uv_handle_p {
         get {
-            if _baseHandle == nil {
+            if _baseHandle == .null {
                 _baseHandle = getBaseHandle()
             }
             return _baseHandle!
@@ -374,7 +374,7 @@ extension HandleType {
 }
 
 private func handle_close_cb(handle:uv_handle_p) {
-    if handle.pointee.data != nil {
+    if handle.pointee.data != .null {
         let object = Unmanaged<HandleBase>.fromOpaque(OpaquePointer(handle.pointee.data)).takeRetainedValue()
         handle.pointee.data = nil
         object.clearHandle()
