@@ -35,7 +35,7 @@ public class Timer : Handle<uv_timer_p> {
     public func start(timeout:Timeout, repeatTimeout:Timeout? = nil) throws {
         try doWithHandle { handle in
             let repeatTimeout = repeatTimeout ?? .Immediate
-            try Error.handle {
+            try ccall(Error.self) {
                 uv_timer_start(handle, timer_cb, timeout.uvTimeout, repeatTimeout.uvTimeout)
             }
         }
@@ -44,7 +44,7 @@ public class Timer : Handle<uv_timer_p> {
     //uv_timer_stop
     public func stop() throws {
         try doWithHandle { handle in
-            try Error.handle {
+            try ccall(Error.self) {
                 uv_timer_stop(handle)
             }
         }
@@ -53,7 +53,7 @@ public class Timer : Handle<uv_timer_p> {
     //uv_timer_again
     public func again() throws {
         try doWithHandle { handle in
-            try Error.handle {
+            try ccall(Error.self) {
                 uv_timer_again(handle)
             }
         }

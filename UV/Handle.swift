@@ -40,7 +40,7 @@ extension UnsafeMutablePointer : uv_handle_type {
     }
     
     public func isNil() -> Bool {
-        return self == nil
+        return self == .null
     }
     
     public func testNil() throws {
@@ -80,7 +80,7 @@ protocol PropertyType {
 
 extension PropertyType {
     static func read(object:Object) throws -> Type {
-        return try Error.handle { code in
+        return try ccall(Error.self) { code in
             var value:Type = getterValue()
             code = function()(object, &value)
             return value
@@ -89,7 +89,7 @@ extension PropertyType {
     
     static func write(object:Object, value:Type) throws {
         var value:Type = value
-        try Error.handle {
+        try ccall(Error.self) {
             function()(object, &value)
         }
     }
@@ -183,7 +183,7 @@ public class HandleBase {
     
     public var baseHandle:uv_handle_p {
         get {
-            if _baseHandle == nil {
+            if _baseHandle == .null {
                 _baseHandle = getBaseHandle()
             }
             return _baseHandle!
@@ -219,7 +219,7 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
         super.init()
         
         do {
-            try Error.handle {
+            try ccall(Error.self) {
                 initializer(self.handle)
             }
             baseHandle.pointee.data = UnsafeMutablePointer<Void>(OpaquePointer(bitPattern: Unmanaged.passRetained(self)))
@@ -351,7 +351,7 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
     //present, because properties can not throw. So both ways
     public func getFileno() throws -> uv_os_fd_t {
         return try doWithBaseHandle { handle in
-            try Error.handle { code in
+            try ccall(Error.self) { code in
                 var fileno = uv_os_fd_t()
                 code = uv_fileno(handle, &fileno)
                 return fileno
@@ -374,7 +374,7 @@ extension HandleType {
 }
 
 private func handle_close_cb(handle:uv_handle_p) {
-    if handle.pointee.data != nil {
+    if handle.pointee.data != .null {
         let object = Unmanaged<HandleBase>.fromOpaque(OpaquePointer(handle.pointee.data)).takeRetainedValue()
         handle.pointee.data = nil
         object.clearHandle()

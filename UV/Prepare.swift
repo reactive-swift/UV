@@ -16,6 +16,7 @@
 
 import Foundation
 import CUV
+import Boilerplate
 
 public typealias uv_prepare_p = UnsafeMutablePointer<uv_prepare_t>
 
@@ -33,7 +34,7 @@ public class Prepare : Handle<uv_prepare_p> {
     
     public func start() throws {
         try doWithHandle { handle in
-            try Error.handle {
+            try ccall(Error.self) {
                 uv_prepare_start(handle, prepare_cb)
             }
         }
@@ -41,7 +42,7 @@ public class Prepare : Handle<uv_prepare_p> {
     
     public func stop() throws {
         try doWithHandle { handle in
-            try Error.handle {
+            try ccall(Error.self) {
                 uv_prepare_stop(handle)
             }
         }
