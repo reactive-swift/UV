@@ -31,8 +31,8 @@ class LoopTests: XCTestCase {
     }
     
     func testDefaultLoop() {
-        let loop1 = Loop.defaultLoop()
-        let loop2 = Loop.defaultLoop()
+        let loop1 = Loop.defaultLoop
+        let loop2 = Loop.defaultLoop
         XCTAssertEqual(loop1, loop2)
     }
     
@@ -48,19 +48,19 @@ class LoopTests: XCTestCase {
     }
     
     func testBackendFd() {
-        let fd = Loop.defaultLoop().backendFd
+        let fd = Loop.defaultLoop.backendFd
         XCTAssertGreaterThan(fd, 0)
     }
     
     func testBackendTimeout() {
-        let loop = Loop.defaultLoop()
+        let loop = Loop.defaultLoop
         let timeout = loop.backendTimeout.flatMap { $0 == 0 ? nil : $0 }
         XCTAssertNil(timeout)
         //TODO: set timeout, test again
     }
     
     func testTime() {
-        let loop = Loop.defaultLoop()
+        let loop = Loop.defaultLoop
         
         let time1 = loop.now
         let time2 = loop.now
@@ -78,7 +78,7 @@ class LoopTests: XCTestCase {
     }
     
     func testWalk() {
-        let loop = Loop.defaultLoop()
+        let loop = Loop.defaultLoop
         
         var n = 0
         loop.walk { handle in

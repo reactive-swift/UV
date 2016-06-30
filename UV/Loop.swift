@@ -52,8 +52,10 @@ public class Loop {
         }
     }
     
-    public static func defaultLoop() -> Loop {
-        return Loop(loop: uv_default_loop())
+    public static var defaultLoop: Loop {
+        get {
+            return Loop(loop: uv_default_loop())
+        }
     }
     
     /*public func configure(option:uv_loop_option, _ args: CVarArgType...) {
@@ -69,9 +71,16 @@ public class Loop {
     }
     
     /// returns true if no more handles are there
-    public func run(mode:uv_run_mode = UV_RUN_DEFAULT) -> Bool {
+#if swift(>=3.0)
+    @discardableResult
+    public func run(inMode mode:uv_run_mode = UV_RUN_DEFAULT) -> Bool {
         return uv_run(loop, mode) == 0
     }
+#else
+    public func run(inMode mode:uv_run_mode = UV_RUN_DEFAULT) -> Bool {
+        return uv_run(loop, mode) == 0
+    }
+#endif
     
     public var alive:Bool {
         get {
@@ -83,7 +92,7 @@ public class Loop {
         uv_stop(loop)
     }
     
-    private static func size() -> UInt64 {
+    private static var size:UInt64 {
         return UInt64(uv_loop_size())
     }
     
@@ -127,12 +136,30 @@ public class Loop {
 
 public typealias LoopWalkCallback = (HandleType)->Void
 
-private func loop_walker(handle:uv_handle_p, arg:UnsafeMutablePointer<Void>) {
+private func _loop_walker(handle:uv_handle_p?, arg:UnsafeMutablePointer<Void>?) {
+    guard let arg = arg where arg != .null else {
+        return
+    }
+    
+    guard let handle = handle where handle != .null else {
+        return
+    }
+    
     let container = Unmanaged<AnyContainer<LoopWalkCallback>>.fromOpaque(OpaquePointer(arg)).takeUnretainedValue()
     let callback = container.content
-    let handle:Handle<uv_handle_p> = Handle.fromHandle(handle)
-    callback(handle)
+    let handleObject:Handle<uv_handle_p> = Handle.from(handle: handle)
+    callback(handleObject)
 }
+
+#if swift(>=3.0)
+    private func loop_walker(handle:uv_handle_p?, arg:UnsafeMutablePointer<Void>?) {
+        _loop_walker(handle: handle, arg: arg)
+    }
+#else
+    private func loop_walker(handle:uv_handle_p, arg:UnsafeMutablePointer<Void>) {
+        _loop_walker(handle, arg: arg)
+    }
+#endif
 
 extension Loop : Equatable {
 }

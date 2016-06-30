@@ -27,20 +27,30 @@ public class Async : Handle<uv_async_p> {
     public init(loop:Loop, callback:AsyncCallback) throws {
         self.callback = callback
         try super.init { handle in
-            uv_async_init(loop.loop, handle, async_cb)
+            uv_async_init(loop.loop, handle.portable, async_cb)
         }
     }
     
     /// uv_async_send
     /// the only thread safe function in this lib
     public func send() {
-        if !handle.isNil() {
-            uv_async_send(handle)
+        if !handle.isNil {
+            uv_async_send(handle.portable)
         }
     }
 }
 
-private func async_cb(handle:uv_async_p) {
-    let async:Async = Async.fromHandle(handle)
+private func _async_cb(handle:uv_async_p?) {
+    let async:Async = Async.from(handle:handle)
     async.callback(async)
 }
+
+#if swift(>=3.0)
+    private func async_cb(handle:uv_async_p?) {
+        return _async_cb(handle: handle)
+    }
+#else
+    private func async_cb(handle:uv_async_p) {
+        return _async_cb(handle)
+    }
+#endif
