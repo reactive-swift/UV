@@ -22,7 +22,7 @@ class StreamTests: XCTestCase {
         let connectedExpectation = self.expectation(withDescription: "CONNECTED")
         
         let loop = try! Loop()
-        let server = try! TCP(loop: loop) { (server:Stream<uv_tcp_p>) -> Void in
+        let server = try! TCP(loop: loop) { (server:UV.Stream) -> Void in
             let accepted = try! server.accept { stream, result in
                 guard let data = result.value else {
                     XCTFail(result.error!.description)
@@ -33,7 +33,7 @@ class StreamTests: XCTestCase {
                 
                 let writeBackExpectation = self.expectation(withDescription: "WRITE BACK")
                 
-                stream.write(data) { req, e in
+                stream.write(data: data) { req, e in
                     XCTAssertNil(e)
                     writeBackExpectation.fulfill()
                 }
@@ -49,10 +49,10 @@ class StreamTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(uv_ip4_addr("127.0.0.1", 45678, &addr), 0)
         
         try! withUnsafePointer(&addr) { pointer in
-            try server.bind(UnsafePointer(pointer))
+            try server.bind(to: UnsafePointer(pointer))
         }
         
-        try! server.listen(125)
+        try! server.listen(backlog: 125)
         
         let client = try! TCP(loop: loop) { stream, result in
             guard let data = result.value else {
@@ -66,13 +66,13 @@ class StreamTests: XCTestCase {
         }
         
         withUnsafePointer(&addr) { pointer in
-            client.connect(UnsafePointer(pointer)) { req, e in
+            client.connect(to: UnsafePointer(pointer)) { req, e in
                 XCTAssertNil(e)
                 connectedExpectation.fulfill()
                 
                 let data = Data(data: array)
                 
-                client.write(data) { req, e in
+                client.write(data: data) { req, e in
                     XCTAssertNil(e)
                     data.destroy()
                 }
@@ -80,7 +80,7 @@ class StreamTests: XCTestCase {
             }
         }
         
-        loop.run(UV_RUN_DEFAULT)
+        loop.run(inMode: UV_RUN_DEFAULT)
         
         self.waitForExpectations(withTimeout: 0)
     }

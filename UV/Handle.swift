@@ -22,10 +22,13 @@ public protocol uv_handle_type {
     func cast<T>() -> UnsafeMutablePointer<T>
     func cast<T>() -> UnsafePointer<T>
     
-    func isNil() -> Bool
+    var isNil:Bool {get}
     func testNil() throws
     
+#if swift(>=3.0)
+#else
     mutating func nullify()
+#endif
     static func alloc() -> Self
     mutating func dealloc()
 }
@@ -39,19 +42,22 @@ extension UnsafeMutablePointer : uv_handle_type {
         return UnsafePointer<T>(self)
     }
     
-    public func isNil() -> Bool {
+    public var isNil:Bool {
         return self == .null
     }
     
     public func testNil() throws {
-        if isNil() {
+        if isNil {
             throw Error.HandleClosed
         }
     }
     
+#if swift(>=3.0)
+#else
     public mutating func nullify() {
         self = nil
     }
+#endif
     
     public static func alloc() -> UnsafeMutablePointer {
         return UnsafeMutablePointer(allocatingCapacity: 1)
@@ -63,51 +69,94 @@ extension UnsafeMutablePointer : uv_handle_type {
     }
 }
 
+#if swift(>=3.0)
+    extension Optional where Wrapped : uv_handle_type {
+        public mutating func nullify() {
+            self = nil
+        }
+        
+        public var isNil:Bool {
+            return self?.isNil ?? true
+        }
+        
+        public func testNil() throws {
+            if isNil {
+                throw Error.HandleClosed
+            }
+        }
+    
+        public var portable:Wrapped? {
+            return self
+        }
+    }
+#else
+    extension Optional where Wrapped : uv_handle_type {
+        public mutating func nullify() {
+            self?.nullify()
+            self = nil
+        }
+    
+        public var isNil:Bool {
+            return self.map({$0.isNil}).getOr(else: true)
+        }
+    
+        public func testNil() throws {
+            if isNil {
+                throw Error.HandleClosed
+            }
+        }
+    
+        public var portable:Wrapped {
+            return self!
+        }
+    }
+#endif
+
 public typealias uv_handle_p = UnsafeMutablePointer<uv_handle_t>
 
 protocol PropertyType {
     associatedtype Object
     associatedtype `Type`
     
-    static func name() -> String
+    static var name: String {get}
     
-    static func getterValue() -> `Type`
-    static func function() -> (Object, UnsafeMutablePointer<`Type`>) -> Int32
+    static var getterValue:`Type` {get}
+    static var function:(Object, UnsafeMutablePointer<`Type`>) -> Int32 {get}
     
-    static func read(object:Object) throws -> `Type`
-    static func write(object:Object, value:`Type`) throws
+    static func read(from object:Object) throws -> `Type`
+    static func write(to object:Object, value:`Type`) throws
 }
 
 extension PropertyType {
-    static func read(object:Object) throws -> Type {
+    static func read(from object:Object) throws -> Type {
         return try ccall(Error.self) { code in
-            var value:Type = getterValue()
-            code = function()(object, &value)
+            var value:Type = getterValue
+            code = function(object, &value)
             return value
         }
     }
     
-    static func write(object:Object, value:Type) throws {
+    static func write(to object:Object, value:Type) throws {
         var value:Type = value
         try ccall(Error.self) {
-            function()(object, &value)
+            function(object, &value)
         }
     }
 }
 
 extension PropertyType {
-    static func readNoThrow(object:Object) -> Type? {
-        return try? read(object)
+    static func readNoThrow(from object:Object) -> Type? {
+        return try? read(from: object)
     }
     
-    static func writeNoThrow(object:Object, value:Type?) {
+    static func writeNoThrow(to object:Object, value:Type?) {
         if let value = value {
             do {
-                try write(object, value: value)
+                try write(to: object, value: value)
             } catch let e as Error {
                 print(e.description)
             } catch {
-                print("Unknown error occured while setting ", name())
+                print("Unknown error occured while setting ", name)
             }
         }
     }
@@ -117,7 +166,7 @@ private protocol BufferPropertyType : PropertyType {
 }
 
 private extension BufferPropertyType where Type == Int32 {
-    static func getterValue() -> Type {
+    static var getterValue:Type {
         return 0
     }
 }
@@ -126,11 +175,11 @@ private class SendBufferSizeProperty : BufferPropertyType {
     typealias Object = uv_handle_p
     typealias `Type` = Int32
     
-    static func name() -> String {
+    static var name: String {
         return "send buffer size"
     }
     
-    static func function() -> (Object, UnsafeMutablePointer<Type>) -> Int32 {
+    static var function:(Object, UnsafeMutablePointer<Type>) -> Int32 {
         return uv_send_buffer_size
     }
 }
@@ -139,17 +188,17 @@ private class RecvBufferSizeProperty : BufferPropertyType {
     typealias Object = uv_handle_p
     typealias `Type` = Int32
     
-    static func name() -> String {
+    static var name: String {
         return "recv buffer size"
     }
     
-    static func function() -> (Object, UnsafeMutablePointer<Type>) -> Int32 {
+    static var function:(Object, UnsafeMutablePointer<Type>) -> Int32 {
         return uv_recv_buffer_size
     }
 }
 
 public protocol HandleType : AnyObject {
-    var baseHandle:uv_handle_p {get}
+    var baseHandle:uv_handle_p? {get}
     
     var loop:Loop? {get}
     var active:Bool {get}
@@ -181,19 +230,19 @@ public protocol HandleType : AnyObject {
 public class HandleBase {
     private var _baseHandle:uv_handle_p?
     
-    public var baseHandle:uv_handle_p {
+    public var baseHandle:uv_handle_p? {
         get {
             if _baseHandle == .null {
                 _baseHandle = getBaseHandle()
             }
-            return _baseHandle!
+            return _baseHandle
         }
         set {
             _baseHandle = newValue
         }
     }
     
-    func getBaseHandle() -> uv_handle_p {
+    func getBaseHandle() -> uv_handle_p? {
         return nil
     }
     
@@ -203,10 +252,10 @@ public class HandleBase {
 }
 
 public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
-    public var handle:Type
+    public var handle:Type?
     
-    override func getBaseHandle() -> uv_handle_p {
-        return self.handle.cast()
+    override func getBaseHandle() -> uv_handle_p? {
+        return self.handle.map({$0.cast()})
     }
     
     override func clearHandle() {
@@ -214,7 +263,7 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
         handle.nullify()
     }
     
-    init(_ initializer:(Type)->Int32) throws {
+    init(_ initializer:(Type?)->Int32) throws {
         self.handle = Type.alloc()
         super.init()
         
@@ -222,25 +271,25 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
             try ccall(Error.self) {
                 initializer(self.handle)
             }
-            baseHandle.pointee.data = UnsafeMutablePointer<Void>(OpaquePointer(bitPattern: Unmanaged.passRetained(self)))
+            baseHandle?.pointee.data = UnsafeMutablePointer<Void>(OpaquePointer(bitPattern: Unmanaged.passRetained(self)))
         } catch let e {
             //cleanum if not created
-            handle.dealloc()
+            handle?.dealloc()
             throw e
         }
     }
     
-    private static func doWithHandle<Handle: uv_handle_type, Ret>(handle: Handle, fun:(Handle) throws -> Ret) throws -> Ret {
+    private static func doWith<Handle: uv_handle_type, Ret>(handle handle: Handle?, fun:(Handle) throws -> Ret) throws -> Ret {
         try handle.testNil()
-        return try fun(handle)
+        return try fun(handle!)
     }
     
     private func doWithBaseHandle<Ret>(fun:(uv_handle_p) throws -> Ret) throws -> Ret {
-        return try Handle.doWithHandle(baseHandle, fun: fun)
+        return try Handle.doWith(handle: baseHandle, fun: fun)
     }
     
     func doWithHandle<Ret>(fun:(Type) throws -> Ret) throws -> Ret {
-        return try Handle.doWithHandle(handle, fun: fun)
+        return try Handle.doWith(handle: handle, fun: fun)
     }
     
     public var loop:Loop? {
@@ -253,38 +302,38 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
     
     public var active:Bool {
         get {
-            return !baseHandle.isNil() && uv_is_active(baseHandle) != 0
+            return !baseHandle.isNil && uv_is_active(baseHandle!) != 0
         }
     }
     
     public var closing:Bool {
         get {
-            return baseHandle.isNil() || uv_is_closing(baseHandle) != 0
+            return baseHandle.isNil || uv_is_closing(baseHandle!) != 0
         }
     }
     
     //uv_close
     public func close() {
-        if !baseHandle.isNil() {
-            uv_close(baseHandle, handle_close_cb)
+        if !baseHandle.isNil {
+            uv_close(baseHandle!, handle_close_cb)
         }
     }
     
     public func ref() throws {
         try doWithBaseHandle { _ in
-            uv_ref(self.baseHandle)
+            uv_ref(self.baseHandle.portable)
         }
     }
     
     public func unref() throws {
         try doWithBaseHandle { _ in
-            uv_unref(self.baseHandle)
+            uv_unref(self.baseHandle.portable)
         }
     }
     
     public var referenced:Bool {
         get {
-            return !baseHandle.isNil() && uv_has_ref(baseHandle) != 0
+            return !baseHandle.isNil && uv_has_ref(baseHandle.portable) != 0
         }
     }
     
@@ -293,26 +342,26 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
     //present, because properties can not throw. So both ways
     public func getSendBufferSize() throws -> Int32 {
         return try doWithBaseHandle { handle in
-            try SendBufferSizeProperty.read(handle)
+            try SendBufferSizeProperty.read(from: handle)
         }
     }
     
     public func setSendBufferSize(size:Int32) throws {
         try doWithBaseHandle { handle in
-            try SendBufferSizeProperty.write(handle, value: size)
+            try SendBufferSizeProperty.write(to: handle, value: size)
         }
     }
     
     public var sendBufferSize:Int32? {
         get {
             return try? doWithBaseHandle { handle in
-                return try SendBufferSizeProperty.read(handle)
+                return try SendBufferSizeProperty.read(from: handle)
             }
         }
         set {
             do {
                 try doWithBaseHandle { handle in
-                    SendBufferSizeProperty.writeNoThrow(handle, value: newValue)
+                    SendBufferSizeProperty.writeNoThrow(to: handle, value: newValue)
                 }
             } catch {
             }
@@ -322,26 +371,26 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
     //present, because properties can not throw. So both ways
     public func getRecvBufferSize() throws -> Int32 {
         return try doWithBaseHandle { handle in
-            try RecvBufferSizeProperty.read(handle)
+            try RecvBufferSizeProperty.read(from: handle)
         }
     }
     
     public func setRecvBufferSize(size:Int32) throws {
         try doWithBaseHandle { handle in
-            try RecvBufferSizeProperty.write(handle, value: size)
+            try RecvBufferSizeProperty.write(to: handle, value: size)
         }
     }
     
     public var recvBufferSize:Int32? {
         get {
             return try? doWithBaseHandle { handle in
-                return try RecvBufferSizeProperty.read(handle)
+                return try RecvBufferSizeProperty.read(from: handle)
             }
         }
         set {
             do {
                 try doWithBaseHandle { handle in
-                    RecvBufferSizeProperty.writeNoThrow(handle, value: newValue)
+                    RecvBufferSizeProperty.writeNoThrow(to: handle, value: newValue)
                 }
             } catch {
             }
@@ -367,13 +416,17 @@ public class Handle<Type : uv_handle_type> : HandleBase, HandleType {
 }
 
 extension HandleType {
-    static func fromHandle(handle:uv_handle_type) -> Self {
+    static func from(handle handle:uv_handle_type!) -> Self {
         let handle:uv_handle_p = handle.cast()
         return Unmanaged.fromOpaque(OpaquePointer(handle.pointee.data)).takeUnretainedValue()
     }
 }
 
-private func handle_close_cb(handle:uv_handle_p) {
+private func _handle_close_cb(handle:uv_handle_p?) {
+    guard let handle = handle where handle != .null else {
+        return
+    }
+    
     if handle.pointee.data != .null {
         let object = Unmanaged<HandleBase>.fromOpaque(OpaquePointer(handle.pointee.data)).takeRetainedValue()
         handle.pointee.data = nil
@@ -383,3 +436,14 @@ private func handle_close_cb(handle:uv_handle_p) {
     handle.deinitialize(count: 1)
     handle.deallocateCapacity(1)
 }
+
+#if swift(>=3.0)
+    private func handle_close_cb(handle:uv_handle_p?) {
+        _handle_close_cb(handle: handle)
+    }
+#else
+    private func handle_close_cb(handle:uv_handle_p) {
+        _handle_close_cb(handle)
+    }
+#endif
+

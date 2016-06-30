@@ -28,11 +28,11 @@ extension Error : ErrorWithCodeType {
         self = .WithCode(code: code)
     }
     
-    public static func isError(code:Int32) -> Bool {
+    public static func isError(_ code:Int32) -> Bool {
         return code < 0
     }
     
-    public static func error(code:Int32) -> Error? {
+    public static func error(code code:Int32) -> Error? {
         return isError(code) ? Error(code: code) : nil
     }
 }

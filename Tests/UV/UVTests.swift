@@ -29,14 +29,14 @@ class UVTests: XCTestCase {
             print("timer:", counter)
             if counter == 10 {
                 try! timer.stop()
-                try! timer.start(.Immediate, repeatTimeout: .In(timeout: 0.1))
+                try! timer.start(timeout: .Immediate, repeatTimeout: .In(timeout: 0.1))
             }
             if counter > 20 {
                 timer.close()
             }
         }
         
-        try! timer.start(.Immediate, repeatTimeout: .In(timeout: 0.05))
+        try! timer.start(timeout: .Immediate, repeatTimeout: .In(timeout: 0.05))
         
         loop.run()
         

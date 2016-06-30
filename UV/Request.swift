@@ -54,10 +54,12 @@ public protocol RequestCallbackCaller {
 }
 
 public class Request<Type: uv_request_type> : RequestCallbackCaller {
+    public typealias RequestCallback = (Request, Error?)->Void
+    
     internal let _req:UnsafeMutablePointer<Type>
     private let _baseReq:UnsafeMutablePointer<uv_req_t>
     
-    private let _callback:Request<Type>.RequestCallback
+    private let _callback:RequestCallback
     
     internal init(_ callback:Request<Type>.RequestCallback) {
         self._req = UnsafeMutablePointer(allocatingCapacity: 1)
@@ -74,7 +76,7 @@ public class Request<Type: uv_request_type> : RequestCallbackCaller {
         return _req
     }
     
-    internal func alive() {
+    internal func bear() {
         _baseReq.pointee.data = UnsafeMutablePointer(OpaquePointer(bitPattern: Unmanaged.passRetained(self)))
     }
     
@@ -82,8 +84,8 @@ public class Request<Type: uv_request_type> : RequestCallbackCaller {
         Unmanaged<Request<Type>>.fromOpaque(OpaquePointer(_baseReq.pointee.data)).release()
     }
     
-    private func call(status:Int32) {
-        _callback(self, Error.error(status))
+    private func call(result status:Int32) {
+        _callback(self, Error.error(code: status))
     }
     
     public func cancel() throws {
@@ -92,22 +94,26 @@ public class Request<Type: uv_request_type> : RequestCallbackCaller {
         }
     }
     
-    public static func perform(callback:RequestCallback, action:(UnsafeMutablePointer<Type>)->Int32) {
+    public static func perform(callback callback:RequestCallback, action:(UnsafeMutablePointer<Type>)->Int32) {
         let req = Request(callback)
         
-        if let error = Error.error(action(req.pointer)) {
+        if let error = Error.error(code: action(req.pointer)) {
             callback(req, error)
             return
         }
         
-        req.alive()
+        req.bear()
     }
 }
 
-internal func req_cb<Type: uv_request_type>(req:UnsafeMutablePointer<Type>, status:Int32) {
+internal func req_cb<Type: uv_request_type>(_ req:UnsafeMutablePointer<Type>?, status:Int32) {
+    guard let req = req where req != .null else {
+        return
+    }
+    
     let request = req.pointee.request
     defer {
         request.kill()
     }
-    request.call(status)
+    request.call(result: status)
 }
