@@ -31,17 +31,24 @@ public typealias uv_udp_send_p = UnsafeMutablePointer<uv_udp_send_t>
 public typealias uv_work_p = UnsafeMutablePointer<uv_work_t>
 public typealias uv_write_p = UnsafeMutablePointer<uv_write_t>
 
-public protocol uv_request_type {
+public protocol uv_request_type  {
 }
 
 internal extension uv_request_type {
+    
     internal var request:Request<uv_req_t> {
         get {
             var this = self
-            let req = withUnsafePointer(&this) { pointer in
-                UnsafePointer<uv_req_t>(pointer)
+            return withUnsafePointer(to: &this) { p in
+                print (p)
+                return p.withMemoryRebound(to:uv_req_t.self, capacity: 1){ pointer in
+                    print (pointer)
+                    let v = Unmanaged<Request<uv_req_t>>.fromOpaque(pointer)
+                    print(v)
+                    return v.takeUnretainedValue()
+                    //return v
+                }
             }
-            return Unmanaged<Request<uv_req_t>>.fromOpaque(OpaquePointer(req.pointee.data)).takeUnretainedValue()
         }
     }
 }
@@ -53,23 +60,25 @@ public protocol RequestCallbackCaller {
     associatedtype RequestCallback = (Self, Error?)->Void
 }
 
-public class Request<Type: uv_request_type> : RequestCallbackCaller {
+open class Request<Type: uv_request_type> : RequestCallbackCaller {
     public typealias RequestCallback = (Request, Error?)->Void
     
     internal let _req:UnsafeMutablePointer<Type>
-    private let _baseReq:UnsafeMutablePointer<uv_req_t>
+    fileprivate let _baseReq:UnsafeMutablePointer<uv_req_t>
     
-    private let _callback:RequestCallback
+    fileprivate let _callback:RequestCallback
     
-    internal init(_ callback:Request<Type>.RequestCallback) {
-        self._req = UnsafeMutablePointer(allocatingCapacity: 1)
-        self._baseReq = UnsafeMutablePointer(_req)
+    internal init(_ callback:@escaping Request<Type>.RequestCallback) {
+        self._req = UnsafeMutablePointer.allocate(capacity: 1)
+        //UnsafePointer.withMemoryRebound(_req)
+
+        self._baseReq = _req.withMemoryRebound(to: uv_req_t.self, capacity: 1){ pointer in pointer }
         self._callback = callback
     }
     
     deinit {
         _req.deinitialize(count: 1)
-        _req.deallocateCapacity(1)
+        _req.deallocate(capacity: 1)
     }
     
     internal var pointer:UnsafeMutablePointer<Type> {
@@ -77,27 +86,27 @@ public class Request<Type: uv_request_type> : RequestCallbackCaller {
     }
     
     internal func bear() {
-        _baseReq.pointee.data = UnsafeMutablePointer(OpaquePointer(bitPattern: Unmanaged.passRetained(self)))
+        _baseReq.pointee.data = UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
     }
     
     internal func kill() {
-        Unmanaged<Request<Type>>.fromOpaque(OpaquePointer(_baseReq.pointee.data)).release()
+        Unmanaged<Request<Type>>.fromOpaque(_baseReq).release()
     }
     
-    private func call(result status:Int32) {
-        _callback(self, Error.error(code: status))
+    fileprivate func call(result status:Int32) {
+        _callback(self, Error1.error(code: status))
     }
     
-    public func cancel() throws {
-        try ccall(Error.self) {
+    open func cancel() throws {
+        try ccall(Error1.self) {
             uv_cancel(_baseReq)
         }
     }
     
-    public static func perform(callback callback:RequestCallback, action:(UnsafeMutablePointer<Type>)->Int32) {
+    open static func perform(callback:@escaping RequestCallback, action:(UnsafeMutablePointer<Type>)->Int32) {
         let req = Request(callback)
         
-        if let error = Error.error(code: action(req.pointer)) {
+        if let error = Error1.error(code: action(req.pointer)) {
             callback(req, error)
             return
         }
@@ -107,7 +116,7 @@ public class Request<Type: uv_request_type> : RequestCallbackCaller {
 }
 
 internal func req_cb<Type: uv_request_type>(_ req:UnsafeMutablePointer<Type>?, status:Int32) {
-    guard let req = req where req != .null else {
+    guard let req = req , req != .null else {
         return
     }
     
