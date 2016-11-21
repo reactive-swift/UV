@@ -14,7 +14,6 @@
 //limitations under the License.
 //===-----------------------------------------------------------------------===//
 
-import Foundation
 import Boilerplate
 import Result
 
@@ -140,7 +139,7 @@ open class Data : DataProtocol {
 }
 
 public protocol ReadCallbackCaller {
-    associatedtype ReadCallback = (Self, Result<DataProtocol, Error1>)->Void
+    associatedtype ReadCallback = (Self, Result<DataProtocol, Error>)->Void
 }
 
 open class ShutdownRequest : Request<uv_shutdown_t> {
@@ -153,10 +152,10 @@ internal protocol StreamProtocol : ReadCallbackCaller {
     func fresh(on loop:Loop, readCallback:Self.ReadCallback) throws -> Self
 }
 
-open class Stream1<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller, ReadCallbackCaller, StreamProtocol {
+open class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller, ReadCallbackCaller, StreamProtocol {
    
-    public typealias SimpleCallback = (Stream1)->Void
-    public typealias ReadCallback = (Stream1, Result<DataProtocol, Error1>)->Void
+    public typealias SimpleCallback = (Stream)->Void
+    public typealias ReadCallback = (Stream, Result<DataProtocol, Error>)->Void
     
     fileprivate lazy var streamHandle:uv_stream_p? = self.getStreamHandle()
     
@@ -171,7 +170,7 @@ open class Stream1<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller, 
         CommonRuntimeError.NotImplemented(what: "static func fresh(with loop:Loop) -> Self").panic()
     }
     
-    init(readCallback:@escaping Stream1.ReadCallback, connectionCallback:@escaping Stream1.SimpleCallback, _ initializer:@escaping (Type?)->Int32) throws {
+    init(readCallback:@escaping Stream.ReadCallback, connectionCallback:@escaping Stream.SimpleCallback, _ initializer:@escaping (Type?)->Int32) throws {
         self.connectionCallback = connectionCallback
         self.readCallback = readCallback
         try super.init(initializer)
@@ -184,14 +183,14 @@ open class Stream1<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller, 
     }
     
     open func listen(backlog:Int32) throws {
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             uv_listen(streamHandle.portable, backlog, connection_cb)
         }
     }
     
     open func accept(readCallback fun:@escaping ReadCallback = {_,_ in}) throws -> Self {
         let new = try self.fresh(on: loop!, readCallback: fun)
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             uv_accept(self.streamHandle.portable, new.streamHandle.portable)
         }
         
@@ -199,13 +198,13 @@ open class Stream1<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller, 
     }
     
     open func startReading() throws {
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             uv_read_start(self.streamHandle.portable, alloc_cb, read_cb)
         }
     }
     
     open func stopReading() throws {
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             uv_read_stop(self.streamHandle.portable)
         }
     }
@@ -252,8 +251,8 @@ private func _read_cb(_ stream:uv_stream_p?, nread:ssize_t, bufp:UnsafePointer<u
         return
     }
     
-    let e = Error1.error(code: Int32(nread))
-    let result:Result<DataProtocol, Error1> = e.map { e in
+    let e = Error.error(code: Int32(nread))
+    let result:Result<DataProtocol, Error> = e.map { e in
         Result(error: e)
     }.getOr {
         let data = UVData(size: nread, buffers: bufp!)
@@ -265,7 +264,7 @@ private func _read_cb(_ stream:uv_stream_p?, nread:ssize_t, bufp:UnsafePointer<u
         result.value?.destroy()
     }
     
-    let stream = Stream1<uv_stream_p>.from(handle: stream)
+    let stream = Stream<uv_stream_p>.from(handle: stream)
     stream.readCallback(stream, result)
 }
 
@@ -308,7 +307,7 @@ private func _read_cb(_ stream:uv_stream_p?, nread:ssize_t, bufp:UnsafePointer<u
 
 private func _connection_cb(_ server:uv_stream_p?, status:Int32) {
     let handle:uv_handle_p? = server.map({$0.cast()})
-    let stream = Stream1<uv_stream_p>.from(handle: handle)
+    let stream = Stream<uv_stream_p>.from(handle: handle)
     stream.connectionCallback(stream)
 }
 

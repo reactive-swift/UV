@@ -21,7 +21,7 @@ class StreamTests: XCTestCase {
         let connectedExpectation = self.expectation(description: "CONNECTED")
         
         let loop = try! Loop()
-        let server = try! TCP(loop: loop) { (server:UV.Stream1) -> Void in
+        let server = try! TCP(loop: loop) { (server:UV.Stream) -> Void in
             let accepted = try! server.accept { stream, result in
                 guard let data = result.value else {
                     XCTFail(result.error!.description)

@@ -34,7 +34,7 @@ open class Prepare : Handle<uv_prepare_p> {
     
     open func start() throws {
         try doWithHandle { handle in
-            try ccall(Error1.self) {
+            try ccall(Error.self) {
                 uv_prepare_start(handle, prepare_cb)
             }
         }
@@ -42,7 +42,7 @@ open class Prepare : Handle<uv_prepare_p> {
     
     open func stop() throws {
         try doWithHandle { handle in
-            try ccall(Error1.self) {
+            try ccall(Error.self) {
                 uv_prepare_stop(handle)
             }
         }

@@ -31,7 +31,7 @@ open class Loop {
     public init() throws {
         loop = uv_loop_p.allocate(capacity: 1)
         exclusive = true
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             uv_loop_init(loop)
         }
     }
@@ -44,7 +44,7 @@ open class Loop {
             }
             do {
                 try close()
-            } catch let e as Error1 {
+            } catch let e as Error {
                 print(e.description)
             } catch {
                 print("Unknown error occured while destroying the loop")
@@ -65,7 +65,7 @@ open class Loop {
     }*/
     
     fileprivate func close() throws {
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             uv_loop_close(loop)
         }
     }

@@ -53,7 +53,7 @@ public protocol uv_handle_type {
 ////
 //    public func testNil() throws {
 //        if isNil {
-//            throw Error1.handleClosed
+//            throw Error.handleClosed
 //        }
 //    }
 //
@@ -86,7 +86,7 @@ extension UnsafeMutablePointer : uv_handle_type {
     
     public func testNil() throws {
         if isNil {
-            throw Error1.handleClosed
+            throw Error.handleClosed
         }
     }
     
@@ -109,7 +109,7 @@ extension Optional where Wrapped : uv_handle_type {
     
     public func testNil() throws {
         if isNil {
-            throw Error1.handleClosed
+            throw Error.handleClosed
         }
     }
     
@@ -135,7 +135,7 @@ protocol PropertyType {
 
 extension PropertyType {
     static func read(from object:Object) throws -> Type {
-        return try ccall(Error1.self) { code in
+        return try ccall(Error.self) { code in
             var value:Type = getterValue
             code = function(object, &value)
             return value
@@ -144,7 +144,7 @@ extension PropertyType {
     
     static func write(to object:Object, value:Type) throws {
         var value:Type = value
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             function(object, &value)
         }
     }
@@ -159,7 +159,7 @@ extension PropertyType {
         if let value = value {
             do {
                 try write(to: object, value: value)
-            } catch let e as Error1 {
+            } catch let e as Error {
                 print(e.description)
             } catch {
                 print("Unknown error occured while setting ", name)
@@ -274,7 +274,7 @@ open class Handle<Type : uv_handle_type> : HandleBase, HandleType {
         super.init()
         
         do {
-            try ccall(Error1.self) {
+            try ccall(Error.self) {
                 initializer(self.handle)
             }
             
@@ -407,7 +407,7 @@ open class Handle<Type : uv_handle_type> : HandleBase, HandleType {
     //present, because properties can not throw. So both ways
     open func getFileno() throws -> uv_os_fd_t {
         return try doWithBaseHandle { handle in
-            try ccall(Error1.self) { code in
+            try ccall(Error.self) { code in
                 var fileno = uv_os_fd_t()
                 code = uv_fileno(handle, &fileno)
                 return fileno

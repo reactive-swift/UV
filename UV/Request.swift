@@ -40,13 +40,8 @@ internal extension uv_request_type {
         get {
             var this = self
             return withUnsafePointer(to: &this) { p in
-                print (p)
                 return p.withMemoryRebound(to:uv_req_t.self, capacity: 1){ pointer in
-                    print (pointer)
-                    let v = Unmanaged<Request<uv_req_t>>.fromOpaque(pointer)
-                    print(v)
-                    return v.takeUnretainedValue()
-                    //return v
+                    return Unmanaged<Request<uv_req_t>>.fromOpaque(pointer.pointee.data).takeUnretainedValue()
                 }
             }
         }
@@ -94,11 +89,11 @@ open class Request<Type: uv_request_type> : RequestCallbackCaller {
     }
     
     fileprivate func call(result status:Int32) {
-        _callback(self, Error1.error(code: status))
+        _callback(self, Error.error(code: status))
     }
     
     open func cancel() throws {
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             uv_cancel(_baseReq)
         }
     }
@@ -106,7 +101,7 @@ open class Request<Type: uv_request_type> : RequestCallbackCaller {
     open static func perform(callback:@escaping RequestCallback, action:(UnsafeMutablePointer<Type>)->Int32) {
         let req = Request(callback)
         
-        if let error = Error1.error(code: action(req.pointer)) {
+        if let error = Error.error(code: action(req.pointer)) {
             callback(req, error)
             return
         }

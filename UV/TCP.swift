@@ -27,7 +27,7 @@ extension uv_connect_t : uv_request_type {
 open class ConnectRequest : Request<uv_connect_t> {
 }
 
-public final class TCP : Stream1<uv_tcp_p> {
+public final class TCP : Stream<uv_tcp_p> {
     public init(loop:Loop, connectionCallback:@escaping TCP.SimpleCallback, readCallback:@escaping TCP.ReadCallback) throws {
         try super.init(readCallback: readCallback, connectionCallback: connectionCallback) { handle in
             uv_tcp_init(loop.loop, handle.portable)
@@ -52,7 +52,7 @@ public final class TCP : Stream1<uv_tcp_p> {
     
     public func bind(to addr:UnsafePointer<sockaddr>, ipV6only:Bool = false) throws {
         let flags:UInt32 = ipV6only ? UV_TCP_IPV6ONLY.rawValue : 0
-        try ccall(Error1.self) {
+        try ccall(Error.self) {
             uv_tcp_bind(handle.portable, addr, flags)
         }
     }
