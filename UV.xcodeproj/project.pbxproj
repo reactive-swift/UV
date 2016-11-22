@@ -26,8 +26,7 @@
 		658566A11C7C9315003B0E08 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658566A01C7C9315003B0E08 /* Error.swift */; };
 		658C31701C8DD854009CCC7A /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658C316F1C8DD854009CCC7A /* Async.swift */; };
 		65CBF4781CC8DCA2004C27B4 /* StreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */; };
-		65CBF47A1CC8F836004C27B4 /* XCTest3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65CBF4791CC8F836004C27B4 /* XCTest3.framework */; };
-		65CBF47B1CC8F847004C27B4 /* XCTest3.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 65CBF4791CC8F836004C27B4 /* XCTest3.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D0A7F3821DAD27AB005C6D51 /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = D0A7F3811DAD27AB005C6D51 /* Cartfile */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,7 +48,6 @@
 			files = (
 				65465E6F1C8B737F0080BAAE /* Boilerplate.framework in Copy Frameworks */,
 				65465E701C8B737F0080BAAE /* Result.framework in Copy Frameworks */,
-				65CBF47B1CC8F847004C27B4 /* XCTest3.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -75,7 +73,7 @@
 		658566A01C7C9315003B0E08 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		658C316F1C8DD854009CCC7A /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamTests.swift; sourceTree = "<group>"; };
-		65CBF4791CC8F836004C27B4 /* XCTest3.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest3.framework; path = Carthage/Build/Mac/XCTest3.framework; sourceTree = "<group>"; };
+		D0A7F3811DAD27AB005C6D51 /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,7 +90,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				65CBF47A1CC8F836004C27B4 /* XCTest3.framework in Frameworks */,
 				6585668D1C7C7912003B0E08 /* UV.framework in Frameworks */,
 				65465E6D1C8B737D0080BAAE /* Boilerplate.framework in Frameworks */,
 				65465E6E1C8B737D0080BAAE /* Result.framework in Frameworks */,
@@ -105,7 +102,6 @@
 		65465E6B1C8B733C0080BAAE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				65CBF4791CC8F836004C27B4 /* XCTest3.framework */,
 				65465E671C8B73380080BAAE /* Boilerplate.framework */,
 				65465E681C8B73380080BAAE /* Result.framework */,
 			);
@@ -115,6 +111,7 @@
 		658566781C7C7911003B0E08 = {
 			isa = PBXGroup;
 			children = (
+				D0A7F3811DAD27AB005C6D51 /* Cartfile */,
 				658566841C7C7911003B0E08 /* UV */,
 				658566901C7C7912003B0E08 /* UVTests */,
 				65465E6B1C8B733C0080BAAE /* Frameworks */,
@@ -218,14 +215,16 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Crossroad Labs, LTD.";
 				TargetAttributes = {
 					658566811C7C7911003B0E08 = {
 						CreatedOnToolsVersion = 7.2.1;
+						LastSwiftMigration = 0810;
 					};
 					6585668B1C7C7912003B0E08 = {
 						CreatedOnToolsVersion = 7.2.1;
+						LastSwiftMigration = 0810;
 					};
 				};
 			};
@@ -252,6 +251,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0A7F3821DAD27AB005C6D51 /* Cartfile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,8 +332,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -382,8 +384,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -406,6 +410,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = "$(PROJECT_DIR)/Carthage/Checkouts $(PROJECT_DIR)/Packages/**";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -415,6 +420,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -432,6 +438,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -439,6 +446,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -455,6 +463,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.crossroadlabs.UV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -470,6 +479,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.crossroadlabs.UVTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -485,6 +495,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.crossroadlabs.UVTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
