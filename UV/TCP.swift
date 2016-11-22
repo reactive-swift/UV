@@ -24,21 +24,21 @@ public typealias uv_tcp_p = UnsafeMutablePointer<uv_tcp_t>
 extension uv_connect_t : uv_request_type {
 }
 
-public class ConnectRequest : Request<uv_connect_t> {
+open class ConnectRequest : Request<uv_connect_t> {
 }
 
 public final class TCP : Stream<uv_tcp_p> {
-    public init(loop:Loop, connectionCallback:TCP.SimpleCallback, readCallback:TCP.ReadCallback) throws {
+    public init(loop:Loop, connectionCallback:@escaping TCP.SimpleCallback, readCallback:@escaping TCP.ReadCallback) throws {
         try super.init(readCallback: readCallback, connectionCallback: connectionCallback) { handle in
             uv_tcp_init(loop.loop, handle.portable)
         }
     }
     
-    public convenience init(loop:Loop, readCallback:TCP.ReadCallback) throws {
+    public convenience init(loop:Loop, readCallback:@escaping TCP.ReadCallback) throws {
         try self.init(loop: loop, connectionCallback: {_ in}, readCallback: readCallback)
     }
     
-    public convenience init(loop:Loop, connectionCallback:TCP.SimpleCallback) throws {
+    public convenience init(loop:Loop, connectionCallback:@escaping TCP.SimpleCallback) throws {
         try self.init(loop: loop, connectionCallback: connectionCallback, readCallback: {_,_ in})
     }
     
@@ -46,7 +46,7 @@ public final class TCP : Stream<uv_tcp_p> {
         return tcp as! A
     }
     
-    override func fresh(on loop:Loop, readCallback:ReadCallback) throws -> Self {
+    override func fresh(on loop:Loop, readCallback:@escaping ReadCallback) throws -> Self {
         return try fresh(TCP(loop: loop, readCallback: readCallback))
     }
     
@@ -57,19 +57,13 @@ public final class TCP : Stream<uv_tcp_p> {
         }
     }
     
-    public func connect(to addr:UnsafePointer<sockaddr>, callback:ConnectRequest.RequestCallback = {_,_ in}) {
+    public func connect(to addr:UnsafePointer<sockaddr>, callback:@escaping ConnectRequest.RequestCallback = {_,_ in}) {
         ConnectRequest.perform(callback: callback) { req in
             uv_tcp_connect(req, self.handle.portable, addr, connect_cb)
         }
     }
 }
 
-#if swift(>=3.0)
     func connect_cb(req:UnsafeMutablePointer<uv_connect_t>?, status:Int32) {
         req_cb(req, status: status)
     }
-#else
-    func connect_cb(req:UnsafeMutablePointer<uv_connect_t>, status:Int32) {
-        req_cb(req, status: status)
-    }
-#endif

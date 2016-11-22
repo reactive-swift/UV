@@ -18,21 +18,21 @@ import CUV
 import Boilerplate
 
 //TODO: make enum
-public enum Error : ErrorProtocol {
-    case WithCode(code:Int32)
-    case HandleClosed
+public enum Error : Swift.Error {
+    case withCode(code:Int32)
+    case handleClosed
 }
 
 extension Error : ErrorWithCodeType {
     public init(code:Int32) {
-        self = .WithCode(code: code)
+        self = .withCode(code: code)
     }
     
     public static func isError(_ code:Int32) -> Bool {
         return code < 0
     }
     
-    public static func error(code code:Int32) -> Error? {
+    public static func error(code:Int32) -> Error? {
         return isError(code) ? Error(code: code) : nil
     }
 }
@@ -41,9 +41,9 @@ public extension Error {
     public var name:String {
         get {
             switch self {
-            case .HandleClosed:
+            case .handleClosed:
                 return "HandleClosed"
-            case .WithCode(let code):
+            case .withCode(let code):
                 return String(cString: uv_err_name(code))
             }
         }
@@ -54,9 +54,9 @@ extension Error : CustomStringConvertible {
     public var description: String {
         get {
             switch self {
-            case .HandleClosed:
+            case .handleClosed:
                 return "The handle you are trying to is was already closed"
-            case .WithCode(let code):
+            case .withCode(let code):
                 return String(cString: uv_strerror(code))
             }
         }
