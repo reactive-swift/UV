@@ -21,7 +21,7 @@ public typealias uv_timer_p = UnsafeMutablePointer<uv_timer_t>
 
 public typealias TimerCallback = (Timer) -> Void
 
-open class Timer : Handle<uv_timer_p> {
+public class Timer : Handle<uv_timer_p> {
     fileprivate let callback:TimerCallback
     
     public init(loop:Loop, callback:@escaping TimerCallback) throws {

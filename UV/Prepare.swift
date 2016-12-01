@@ -22,7 +22,7 @@ public typealias uv_prepare_p = UnsafeMutablePointer<uv_prepare_t>
 
 public typealias PrepareCallback = (Prepare) -> Void
 
-open class Prepare : Handle<uv_prepare_p> {
+public class Prepare : Handle<uv_prepare_p> {
     fileprivate let callback:PrepareCallback
     
     public init(loop:Loop, callback:@escaping PrepareCallback) throws {

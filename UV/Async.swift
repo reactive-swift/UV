@@ -21,7 +21,7 @@ public typealias uv_async_p = UnsafeMutablePointer<uv_async_t>
 
 public typealias AsyncCallback = (Async) -> Void
 
-open class Async : Handle<uv_async_p> {
+public class Async : Handle<uv_async_p> {
     fileprivate let callback:AsyncCallback
     
     public init(loop:Loop, callback:@escaping AsyncCallback) throws {
