@@ -24,7 +24,7 @@ public typealias uv_tcp_p = UnsafeMutablePointer<uv_tcp_t>
 extension uv_connect_t : uv_request_type {
 }
 
-open class ConnectRequest : Request<uv_connect_t> {
+public class ConnectRequest : Request<uv_connect_t> {
 }
 
 public final class TCP : Stream<uv_tcp_p> {

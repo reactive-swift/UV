@@ -19,7 +19,7 @@ import Boilerplate
 
 public typealias uv_loop_p = UnsafeMutablePointer<uv_loop_t>
 
-open class Loop {
+public class Loop {
     fileprivate let exclusive:Bool
     open let loop:uv_loop_p
     

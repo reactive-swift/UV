@@ -55,7 +55,7 @@ public protocol RequestCallbackCaller {
     associatedtype RequestCallback = (Self, Error?)->Void
 }
 
-open class Request<Type: uv_request_type> : RequestCallbackCaller {
+public class Request<Type: uv_request_type> : RequestCallbackCaller {
     public typealias RequestCallback = (Request, Error?)->Void
     
     internal let _req:UnsafeMutablePointer<Type>

@@ -107,7 +107,7 @@ private struct UVData : DataProtocol {
     }
 }
 
-open class Data : DataProtocol {
+public class Data : DataProtocol {
     fileprivate let buffer:uv_buf_t
     fileprivate let data:[UInt8]
     
@@ -142,17 +142,17 @@ public protocol ReadCallbackCaller {
     associatedtype ReadCallback = (Self, Result<DataProtocol, Error>)->Void
 }
 
-open class ShutdownRequest : Request<uv_shutdown_t> {
+public class ShutdownRequest : Request<uv_shutdown_t> {
 }
 
-open class WriteRequest : Request<uv_write_t> {
+public class WriteRequest : Request<uv_write_t> {
 }
 
 internal protocol StreamProtocol : ReadCallbackCaller {
     func fresh(on loop:Loop, readCallback:Self.ReadCallback) throws -> Self
 }
 
-open class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller, ReadCallbackCaller, StreamProtocol {
+public class Stream<Type : uv_stream_type> : Handle<Type>, SimpleCallbackCaller, ReadCallbackCaller, StreamProtocol {
    
     public typealias SimpleCallback = (Stream)->Void
     public typealias ReadCallback = (Stream, Result<DataProtocol, Error>)->Void
