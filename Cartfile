@@ -1,2 +1,2 @@
 github "reactive-swift/CUV"
-github "crossroadlabs/Boilerplate" "master"
+github "crossroadlabs/Boilerplate" ~> 1.0

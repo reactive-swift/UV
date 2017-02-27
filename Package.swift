@@ -20,7 +20,8 @@ let package = Package(
     name: "UV",
     targets: [Target(name: "UV")],
     dependencies: [
-        .Package(url: "https://github.com/reactive-swift/CUV.git", majorVersion: 0, minor: 1),
-        .Package(url: "https://github.com/crossroadlabs/Boilerplate.git", majorVersion: 0, minor: 2)
-    ]
+        .Package(url: "https://github.com/reactive-swift/CUV.git", majorVersion: 1, minor: 0),
+        .Package(url: "https://github.com/crossroadlabs/Boilerplate.git", majorVersion: 1, minor: 0)
+    ],
+    exclude: ["Carthage"]
 )
