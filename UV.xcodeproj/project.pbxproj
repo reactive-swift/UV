@@ -56,7 +56,7 @@
 
 /* Begin PBXFileReference section */
 		65063F3B1C7CE76100E1F8FE /* Handle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Handle.swift; sourceTree = "<group>"; };
-		65063F3F1C7CECDE00E1F8FE /* LoopTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoopTests.swift; path = ../../../_UV/Tests/UVTests/LoopTests.swift; sourceTree = "<group>"; };
+		65063F3F1C7CECDE00E1F8FE /* LoopTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoopTests.swift; sourceTree = "<group>"; };
 		653821811C9D7BBE00FA0F06 /* TCP.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TCP.swift; sourceTree = "<group>"; };
 		65465E671C8B73380080BAAE /* Boilerplate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Boilerplate.framework; path = Carthage/Build/Mac/Boilerplate.framework; sourceTree = "<group>"; };
 		65465E681C8B73380080BAAE /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = Carthage/Build/Mac/Result.framework; sourceTree = "<group>"; };
@@ -67,12 +67,12 @@
 		658566821C7C7911003B0E08 /* UV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = UV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		658566871C7C7911003B0E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6585668C1C7C7912003B0E08 /* UVTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UVTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		658566911C7C7912003B0E08 /* UVTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UVTests.swift; path = ../../../_UV/Tests/UVTests/UVTests.swift; sourceTree = "<group>"; };
-		658566931C7C7912003B0E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../../_UV/Tests/UVTests/Info.plist; sourceTree = "<group>"; };
+		658566911C7C7912003B0E08 /* UVTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UVTests.swift; sourceTree = "<group>"; };
+		658566931C7C7912003B0E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6585669E1C7C92DB003B0E08 /* Loop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Loop.swift; sourceTree = "<group>"; };
 		658566A01C7C9315003B0E08 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		658C316F1C8DD854009CCC7A /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
-		65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StreamTests.swift; path = ../../../_UV/Tests/UVTests/StreamTests.swift; sourceTree = "<group>"; };
+		65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamTests.swift; sourceTree = "<group>"; };
 		D0A7F3811DAD27AB005C6D51 /* Cartfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -154,7 +154,7 @@
 				65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */,
 			);
 			name = UVTests;
-			path = ../PathToRegex/Tests/PathToRegexTests;
+			path = Tests/UV;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -475,7 +475,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
-				INFOPLIST_FILE = Tests/UVTests/Info.plist;
+				INFOPLIST_FILE = Tests/UV/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.crossroadlabs.UVTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -491,7 +491,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
-				INFOPLIST_FILE = Tests/UVTests/Info.plist;
+				INFOPLIST_FILE = Tests/UV/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.crossroadlabs.UVTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
