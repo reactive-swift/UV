@@ -154,7 +154,7 @@
 				65CBF4771CC8DCA2004C27B4 /* StreamTests.swift */,
 			);
 			name = UVTests;
-			path = Tests/UV;
+			path = Tests/UVTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -475,7 +475,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
-				INFOPLIST_FILE = Tests/UV/Info.plist;
+				INFOPLIST_FILE = Tests/UVTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.crossroadlabs.UVTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -491,7 +491,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
-				INFOPLIST_FILE = Tests/UV/Info.plist;
+				INFOPLIST_FILE = Tests/UVTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.crossroadlabs.UVTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
